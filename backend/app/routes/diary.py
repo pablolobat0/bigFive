@@ -1,15 +1,9 @@
 from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel
-from datetime import datetime
 from typing import List
+from app.models.diary import DiaryEntry
+
 
 diary_router = APIRouter()
-
-# Modelo para la entrada del diario
-class DiaryEntry(BaseModel):
-    titulo: str
-    entrada: str
-    fecha: datetime
 
 # Simulación de almacenamiento en memoria para las entradas del diario
 diary_entries: List[DiaryEntry] = []

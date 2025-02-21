@@ -1,20 +1,9 @@
 from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel
-from typing import List, Optional
+from typing import List
+from app.models.message import ChatMessage, ChatResponse
 import uuid
 
 message_router = APIRouter()
-
-# Modelos de datos
-class ChatMessage(BaseModel):
-    id: Optional[str] = None
-    user_id: str
-    text: str
-
-class ChatResponse(BaseModel):
-    id: str
-    text: str
-    emotion: str  # Resultado del análisis emocional
 
 # Simulación de almacenamiento en memoria (para prototipo)
 messages_db: List[ChatMessage] = []
