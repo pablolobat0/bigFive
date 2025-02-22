@@ -5,6 +5,7 @@ import Chat from "./pages/Chat.tsx";
 import Diario from "./pages/Diario.tsx";
 import Login from "./pages/LoginPage.tsx";
 import Register from "./pages/RegisterPage.tsx";
+import Coach from "./pages/Coach.tsx";
 
 const App: React.FC = () => {
   return (
@@ -16,6 +17,7 @@ const App: React.FC = () => {
       <Route path="/diario" element={<Diario />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/coach" element={<Coach />} />
     </Routes>
   </div>
   );
