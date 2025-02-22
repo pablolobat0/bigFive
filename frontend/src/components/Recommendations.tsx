@@ -1,5 +1,3 @@
-import React from "react";
-
 const Recommendations = () => {
   return (
     <section className="bg-gray-100 p-6">
