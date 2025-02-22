@@ -2,8 +2,13 @@ from fastapi import APIRouter, HTTPException, status
 from typing import List
 from app.models.message import ChatMessage, ChatResponse
 import uuid
+from typing import Optional, List, Dict, Literal
+
+from app.services.chatbot import ChatbotService
 
 message_router = APIRouter()
+
+chatbot_service = ChatbotService()
 
 # Simulación de almacenamiento en memoria (para prototipo)
 messages_db: List[ChatMessage] = []
@@ -24,13 +29,25 @@ async def process_message(message: ChatMessage):
 
     # Simulación del análisis emocional (en un caso real, se invocaría al modelo)
     # Por ejemplo, utilizando Vader, GoEmotion o cualquier otro método.
-    emotion = "neutral"  # Valor de ejemplo; aquí se integraría el análisis real
+    emotion = "neutral"
 
     # Almacenar el mensaje en la "base de datos" en memoria
     messages_db.append(message)
 
+    conversation_history: List[Dict[Literal["role", "content"], str]] = [
+        {"role": "user", "content": message.text}
+    ]
+    chatbot_response = chatbot_service.get_chat_response(conversation_history)
+
+    # Verificar si la respuesta es None
+    if chatbot_response is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="No se pudo generar una respuesta."
+        )
+
     # Devolver la respuesta con el resultado del análisis
-    return ChatResponse(id=message.id, text=message.text, emotion=emotion)
+    return ChatResponse(id=message.id, text=chatbot_response, emotion=emotion)
 
 @message_router.get(
     '/messages', 
