@@ -9,11 +9,11 @@ class Token(BaseModel):
     token_type: str
 
 class Emotions(BaseModel):
-    neuroticism: int
-    extraversion: int
-    openness: int
-    agreeableness: int
-    conscientiousness: int 
+    neuroticism: float
+    extraversion: float
+    openness: float
+    agreeableness: float
+    conscientiousness: float 
 
 class UserCreate(BaseModel):
     user_id: str
