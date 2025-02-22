@@ -1,43 +1,68 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
-const NoteEditor = ({ note, onUpdateNote, onDeleteNote }: any) => {
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onUpdateNote({ ...note, title: e.target.value });
-  };
+interface NoteEditorProps {
+  note: any;
+  onUpdateNote: (note: any) => void;
+  onDeleteNote: (noteId: number) => void;
+  isSaving: boolean;
+}
 
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onUpdateNote({ ...note, content: e.target.value });
+const NoteEditor: React.FC<NoteEditorProps> = ({ note, onUpdateNote, onDeleteNote, isSaving }) => {
+  const [title, setTitle] = useState(note.title);
+  const [content, setContent] = useState(note.content);
+
+  // Actualizar el estado interno cuando cambia la nota seleccionada
+  useEffect(() => {
+    setTitle(note.title);
+    setContent(note.content);
+  }, [note]);
+
+  const handleSave = () => {
+    const updatedNote = { ...note, title, content };
+    onUpdateNote(updatedNote);
   };
 
   return (
-    <section className="w-2/3 p-6 bg-gray-100 flex flex-col relative">
-      {/* Botón de eliminar */}
-      <button
-        className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
-        onClick={() => onDeleteNote(note.id)}
-      >
-        Eliminar
-      </button>
-
+    <div className="flex-1 flex flex-col ml-8">
       <input
-        className="text-xl font-bold mb-2 bg-transparent border-none focus:outline-none text-gray-700"
-        value={note.title}
-        onChange={handleTitleChange}
+        type="text"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        className="text-2xl font-bold mb-4 p-2 border-b border-gray-300 focus:outline-none"
+        placeholder="Título"
       />
       <textarea
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
         className="w-full flex-1 p-4 bg-transparent border-none resize-none focus:outline-none text-gray-700 overflow-y-auto"
-        value={note.content}
-        onChange={handleContentChange}
         placeholder="Escribe aquí..."
         style={{
-          backgroundImage: "linear-gradient(transparent 90%, rgba(0,0,0,0.1) 10%)",
-          backgroundSize: "100% 2rem",
-          lineHeight: "2rem",
-          backgroundAttachment: "local", // Permite que las líneas se muevan con el scroll
-          paddingTop: "1rem",
+          
+
+            backgroundImage: "linear-gradient(transparent 90%, rgba(0,0,0,0.1) 10%)",
+            backgroundSize: "100% 2rem",
+            lineHeight: "2rem",
+            backgroundAttachment: "local", // Permite que las líneas se muevan con el scroll
+            backgroundPosition: "0 1.8rem", // Ajusta la posición vertical del fondo
+            paddingTop: "0.2rem", // Ajusta el padding superior para alinear el texto con las líneas
         }}
       />
-    </section>
+      <div className="flex justify-end mt-4">
+        <button
+          onClick={handleSave}
+          disabled={isSaving}
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:bg-blue-300"
+        >
+          {isSaving ? "Guardando..." : "Guardar"}
+        </button>
+        <button
+          onClick={() => onDeleteNote(note.id)}
+          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 ml-2"
+        >
+          Eliminar
+        </button>
+      </div>
+    </div>
   );
 };
 

@@ -14,16 +14,30 @@ const DiarioPage: React.FC = () => {
   ]);
 
   const [selectedNote, setSelectedNote] = useState(notes[0]);
+  const [isSaving, setIsSaving] = useState(false); // Estado para manejar el guardado
 
   const handleSelectNote = (note: any) => {
     setSelectedNote(note);
   };
 
-  const handleUpdateNote = (updatedNote: any) => {
-    setNotes((prevNotes) =>
-      prevNotes.map((note) => (note.id === updatedNote.id ? updatedNote : note))
-    );
-    setSelectedNote(updatedNote);
+  const handleUpdateNote = async (updatedNote: any) => {
+    setIsSaving(true); // Indicar que se está guardando
+
+    // Simulación de una llamada a una API REST
+    try {
+      console.log("Guardando nota en la API...", updatedNote);
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simular un retraso de 1 segundo
+
+      // Actualizar el estado local de las notas
+      setNotes((prevNotes) =>
+        prevNotes.map((note) => (note.id === updatedNote.id ? updatedNote : note))
+      );
+      setSelectedNote(updatedNote);
+    } catch (error) {
+      console.error("Error al guardar la nota:", error);
+    } finally {
+      setIsSaving(false); // Indicar que el guardado ha terminado
+    }
   };
 
   const handleNewNote = () => {
@@ -39,7 +53,7 @@ const DiarioPage: React.FC = () => {
 
   const handleDeleteNote = (noteId: number) => {
     setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId));
-    
+
     // Si la nota eliminada es la actual, seleccionamos otra o dejamos vacío
     if (selectedNote.id === noteId) {
       setSelectedNote(notes.length > 1 ? notes[0] : { id: 0, title: "", date: "", content: "" });
@@ -56,12 +70,16 @@ const DiarioPage: React.FC = () => {
           onSelectNote={handleSelectNote}
           onNewNote={handleNewNote}
         />
-        <NoteEditor note={selectedNote} onUpdateNote={handleUpdateNote} onDeleteNote={handleDeleteNote} />
+        <NoteEditor
+          note={selectedNote}
+          onUpdateNote={handleUpdateNote}
+          onDeleteNote={handleDeleteNote}
+          isSaving={isSaving}
+        />
       </div>
       <Footer />
     </div>
   );
-  
 };
 
 export default DiarioPage;
