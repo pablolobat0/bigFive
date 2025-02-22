@@ -9,6 +9,10 @@ uvicorn = "*"
 openai = "*"
 python-dotenv = "*"
 motor = "*"
+pyjwt = "*"
+pydantic = {extras = ["email"], version = "*"}
+passlib = "*" 
+bcrypt = "*"
 
 [dev-packages]
 
