@@ -15,7 +15,7 @@ passlib = "*"
 bcrypt = "*"
 redis = "*"
 transformers = "*"
-torch = "*"
+numpy = "*"
 
 [dev-packages]
 

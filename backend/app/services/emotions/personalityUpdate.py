@@ -3,6 +3,19 @@ from emotionsModel import *
 from toBig5 import *
 import json
 
+def get_emotion(texto_es):
+    texto_en = translate_es_en(texto_es)
+    resultados_emociones = get_emotions(texto_en)
+    emocion_max = max(resultados_emociones, key=resultados_emociones.get)
+    return emocion_max
+
+def get_big5_factor(texto_es):
+    texto_en = translate_es_en(texto_es)
+    resultados_emociones = get_emotions(texto_en)
+    big5_resultados = update_big5(resultados_emociones)
+    factor_max = max(big5_resultados, key=big5_resultados.get)
+    return factor_max
+
 def update_personality(texto_es, big5_puntajes_previos, bfi_rangos, alpha):
     texto_en = translate_es_en(texto_es)
     resultados_emociones = get_emotions(texto_en)
