@@ -30,11 +30,12 @@ const NoteEditor = ({ note, onUpdateNote, onDeleteNote }: any) => {
         onChange={handleContentChange}
         placeholder="Escribe aquí..."
         style={{
-          backgroundImage: "linear-gradient(transparent 90%, rgba(0,0,0,0.1) 10%)",
-          backgroundSize: "100% 2rem",
-          lineHeight: "2rem",
-          backgroundAttachment: "local", // Permite que las líneas se muevan con el scroll
-          paddingTop: "1rem",
+            backgroundImage: "linear-gradient(transparent 90%, rgba(0,0,0,0.1) 10%)",
+            backgroundSize: "100% 2rem",
+            lineHeight: "2rem",
+            backgroundAttachment: "local", // Permite que las líneas se muevan con el scroll
+            backgroundPosition: "0 1.8rem", // Ajusta la posición vertical del fondo
+            paddingTop: "0.2rem", // Ajusta el padding superior para alinear el texto con las líneas
         }}
       />
     </section>
