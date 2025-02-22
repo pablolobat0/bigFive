@@ -12,3 +12,12 @@ services:
       - MONGO_INITDB_DATABASE=${DATABASE_NAME}
     ports:
       - "27017:27017"
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"  
+    depends_on:
+      - backend
+
