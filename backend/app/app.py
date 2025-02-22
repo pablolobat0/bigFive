@@ -4,6 +4,7 @@ from app.routes.diary import diary_router
 from app.routes.user import user_router
 from contextlib import asynccontextmanager
 from app.db.utils import get_mongo_client, close_client
+from fastapi.middleware.cors import CORSMiddleware
 
 
 from fastapi import FastAPI
@@ -31,6 +32,14 @@ async def lifespan(app: FastAPI):
 
 # Crear aplicación con Lifespan
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permite todos los orígenes
+    allow_credentials=True,
+    allow_methods=["*"],  # Permite todos los métodos
+    allow_headers=["*"],  # Permite todas las cabeceras
+)
 
 
 router = APIRouter()

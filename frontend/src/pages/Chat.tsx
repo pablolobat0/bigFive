@@ -1,11 +1,35 @@
 import React, { useState } from "react";
-import { FaUserCircle, FaComments, FaCog } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import {  FaComments, FaCog } from "react-icons/fa";
 import Header from "../components/Header";
-import Footer from "../components/Footer";
 
 const ChatPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("chat");
+
+  const [userMessage, setUserMessage] = useState(""); // Estado para el mensaje del usuario
+  const [apiResponse, setApiResponse] = useState(""); // Estado para la respuesta de la API
+
+  const handleSendMessage = async () => {
+      try {
+          // Llamar a la API con el mensaje del usuario
+          const response = await fetch("http://localhost:8000/messages", {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ user_id: "1", text: userMessage }),
+          });
+
+          if (!response.ok) {
+              throw new Error("Error al llamar a la API");
+          }
+
+          const data = await response.json();
+          setApiResponse(data.text); // Asumimos que la API devuelve un objeto con un campo "message"
+      } catch (error) {
+          console.error("Error:", error);
+          setApiResponse("Hubo un error al procesar tu mensaje.");
+      }
+  };
 
   return (
     <div className="flex flex-1 w-full bg-primary">
@@ -58,12 +82,28 @@ const ChatPage: React.FC = () => {
             </div>
           </div>
           <div className="mt-10 w-full max-w-2xl flex items-center border rounded-lg p-2">
-            <input type="text" placeholder="Escribe aquí tu prompt" className="flex-1 p-2 outline-none" />
-            <button className="px-4 py-2 bg-third text-white rounded-lg ml-2">Enviar</button>
+          <input
+          type="text"
+          placeholder="Escribe aquí tu prompt"
+          className="flex-1 p-2 outline-none"
+          value={userMessage}
+          onChange={(e) => setUserMessage(e.target.value)}
+          />
+          <button
+          className="px-4 py-2 bg-third text-white rounded-lg ml-2"
+          onClick={handleSendMessage}
+          >
+          Enviar
+          </button>
           </div>
-        </div>
-      </main>
-    </div>
+          {apiResponse && (
+              <div className="mt-4 p-4 bg-gray-100 rounded-lg w-full max-w-2xl">
+              <p>{apiResponse}</p>
+              </div>
+          )}
+          </div>
+          </main>
+          </div>
   );
 };
 
