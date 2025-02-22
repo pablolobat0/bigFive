@@ -7,7 +7,7 @@ const Header: React.FC = () => {
   return (
     <>
       {/* Espaciador para evitar solapamientos */}
-      <div className="h-20"></div>
+      <div className="h-16"></div>
 
       {/* Animación de fade-in + desplazamiento al cargar */}
       <motion.header
