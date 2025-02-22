@@ -6,6 +6,7 @@ import Diario from "./pages/Diario.tsx";
 import Login from "./pages/LoginPage.tsx";
 import Register from "./pages/RegisterPage.tsx";
 import Coach from "./pages/Coach.tsx";
+import Profile from "./pages/Profile.tsx";
 
 const App: React.FC = () => {
   return (
@@ -18,6 +19,7 @@ const App: React.FC = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/coach" element={<Coach />} />
+      <Route path="/perfil" element={<Profile />} />
     </Routes>
   </div>
   );

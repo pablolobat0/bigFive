@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "chart.js": "^4.4.8",
+    "fusioncharts": "^4.1.2",
+    "react-chartjs-2": "^5.3.0",
+    "react-fusioncharts": "^4.1.0",
+    "recharts": "^2.15.1"
+  },
+  "devDependencies": {
+    "@types/fusioncharts": "^3.12.2"
+  }
+}
