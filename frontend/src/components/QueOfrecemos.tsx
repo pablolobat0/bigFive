@@ -3,7 +3,7 @@ import React from "react";
 const QueOfrecemos: React.FC = () => {
   return (
     <section className="w-full bg-landing2Bg py-16 px-8">
-      <div className="container mx-auto">
+      <div className="container px-16 mx-auto">
         {/* Título */}
         <h2 className="text-4xl font-bold text-center text-gray-900 mb-12">
           ¿Qué ofrecemos?
