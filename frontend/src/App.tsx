@@ -1,7 +1,7 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage.tsx";
-import Chat from "./pages/Chat.tsx";
+import Chat from "./pages/Chat.tsx"
 
 const App: React.FC = () => {
   return (
