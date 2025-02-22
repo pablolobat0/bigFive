@@ -67,3 +67,4 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onUpdateNote, onDeleteNot
 };
 
 export default NoteEditor;
+

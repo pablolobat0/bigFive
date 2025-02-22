@@ -35,4 +35,3 @@ import {
   };
   
   export default LineChartComponent;
-  
