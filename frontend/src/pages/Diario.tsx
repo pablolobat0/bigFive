@@ -37,16 +37,31 @@ const DiarioPage: React.FC = () => {
     setSelectedNote(newNote);
   };
 
+  const handleDeleteNote = (noteId: number) => {
+    setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId));
+    
+    // Si la nota eliminada es la actual, seleccionamos otra o dejamos vacío
+    if (selectedNote.id === noteId) {
+      setSelectedNote(notes.length > 1 ? notes[0] : { id: 0, title: "", date: "", content: "" });
+    }
+  };
+
   return (
     <div className="bg-landing2Bg min-h-screen w-full flex flex-col">
       <Header />
-      <div className="flex flex-1 bg-white shadow-lg rounded-lg overflow-hidden mt-10 mb-10 p-8 mx-10 max-w-6xl w-full self-center">
-        <NoteList notes={notes} selectedNote={selectedNote} onSelectNote={handleSelectNote} onNewNote={handleNewNote} />
-        <NoteEditor note={selectedNote} onUpdateNote={handleUpdateNote} />
+      <div className="flex flex-1 bg-white shadow-lg rounded-lg overflow-hidden mt-10 mb-10 p-8 mx-10 max-w-6xl w-full self-center h-[80vh]">
+        <NoteList
+          notes={notes}
+          selectedNote={selectedNote}
+          onSelectNote={handleSelectNote}
+          onNewNote={handleNewNote}
+        />
+        <NoteEditor note={selectedNote} onUpdateNote={handleUpdateNote} onDeleteNote={handleDeleteNote} />
       </div>
       <Footer />
     </div>
-  );  
+  );
+  
 };
 
 export default DiarioPage;
