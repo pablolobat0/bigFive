@@ -1,75 +1,79 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from typing import List
 from app.models.message import ChatMessage, ChatResponse
-import uuid
-from typing import Optional, List, Dict, Literal
-
+from typing import List, Dict, Literal
 from app.services.chatbot import ChatbotService
-
+from motor.motor_asyncio import AsyncIOMotorCollection
+from app.db.utils import get_database
+from app.db.crud.message import (
+    create_message,
+    get_all_messages,
+    get_message_by_id
+)
 message_router = APIRouter()
 
 chatbot_service = ChatbotService()
-
-# Simulación de almacenamiento en memoria (para prototipo)
-messages_db: List[ChatMessage] = []
 
 @message_router.post(
     '/messages', 
     response_model=ChatResponse, 
     status_code=status.HTTP_201_CREATED
 )
-async def process_message(message: ChatMessage):
+async def process_message(message: ChatMessage, db: AsyncIOMotorCollection = Depends(get_database)):
     """
     Recibe un mensaje del chatbot, lo procesa (por ejemplo, analizando el sentimiento) 
     y lo almacena antes de enviarlo al LLM para una respuesta final.
     """
-    # Generar un ID único para el mensaje si no se ha proporcionado
-    if not message.id:
-        message.id = str(uuid.uuid4())
+    try:
+        # Crear el mensaje en la base de datos
+        created_message = await create_message(db.messages, message)
+        
+        # Simulación del análisis emocional (en un caso real, se invocaría al modelo)
+        emotion = "neutral"
 
-    # Simulación del análisis emocional (en un caso real, se invocaría al modelo)
-    # Por ejemplo, utilizando Vader, GoEmotion o cualquier otro método.
-    emotion = "neutral"
+        # Obtener la respuesta del chatbot
+        conversation_history: List[Dict[Literal["role", "content"], str]] = [
+            {"role": "user", "content": message.text}
+        ]
+        chatbot_response = chatbot_service.get_chat_response(conversation_history)
 
-    # Almacenar el mensaje en la "base de datos" en memoria
-    messages_db.append(message)
+        # Verificar si la respuesta es None
+        if chatbot_response is None:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="No se pudo generar una respuesta."
+            )
 
-    conversation_history: List[Dict[Literal["role", "content"], str]] = [
-        {"role": "user", "content": message.text}
-    ]
-    chatbot_response = chatbot_service.get_chat_response(conversation_history)
-
-    # Verificar si la respuesta es None
-    if chatbot_response is None:
+        # Devolver la respuesta con el resultado del análisis
+        return ChatResponse(id=created_message["id"], text=chatbot_response, emotion=emotion)
+    except ValueError as e:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="No se pudo generar una respuesta."
+            status_code=400,
+            detail=str(e)
         )
-
-    # Devolver la respuesta con el resultado del análisis
-    return ChatResponse(id=message.id, text=chatbot_response, emotion=emotion)
 
 @message_router.get(
     '/messages', 
     response_model=List[ChatMessage],
     status_code=status.HTTP_200_OK
 )
-async def get_all_messages():
+async def get_messages(db: AsyncIOMotorCollection = Depends(get_database)):
     """
-    Permite consultar todos los mensajes almacenados (útil para ver el historial).
+    Permite consultar todos los mensajes almacenados en MongoDB.
     """
-    return messages_db
-
+    messages = await get_all_messages(db.messages)
+    return messages
 @message_router.get(
     '/messages/{message_id}', 
     response_model=ChatMessage,
     status_code=status.HTTP_200_OK
 )
-async def get_message(message_id: str):
+
+async def get_message(message_id: str, db: AsyncIOMotorCollection = Depends(get_database)):
     """
-    Permite consultar un mensaje específico por su ID.
+    Permite consultar un mensaje específico por su ID desde MongoDB.
     """
-    for msg in messages_db:
-        if msg.id == message_id:
-            return msg
+    message = await get_message_by_id(db.messages, message_id)
+    if message:
+        return message
     raise HTTPException(status_code=404, detail="Mensaje no encontrado")
