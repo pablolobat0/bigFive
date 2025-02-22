@@ -9,21 +9,27 @@ load_dotenv()
 MONGODB_URI = os.getenv("MONGODB_URI")
 DATABASE_NAME = os.getenv("DATABASE_NAME")
 
+client = None
+db = None
+
 async def get_mongo_client():
     """
     Crea y devuelve una conexión a MongoDB usando Motor.
     """
-    return motor.motor_asyncio.AsyncIOMotorClient(MONGODB_URI)
+    global client, db
+    client = motor.motor_asyncio.AsyncIOMotorClient(MONGODB_URI)
+    db = client.DATABASE_NAME
 
-async def get_database(client):
+async def get_database():
     """
     Devuelve la base de datos especificada desde el cliente de MongoDB.
     """
-    return client[DATABASE_NAME]
+    return db
 
 
-async def close_client(client):
+async def close_client():
     """
     Cierra la conexion con la base de datos
     """
-    client.close()
+    if(client!=None):
+        client.close()

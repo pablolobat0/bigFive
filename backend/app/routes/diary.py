@@ -1,6 +1,14 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from typing import List
 from app.models.diary import DiaryEntry
+from app.db.utils import get_database
+from app.db.crud.diary import (
+    get_all_diary_entries,
+    create_diary_entry,
+    get_diary_entry_by_title,
+    delete_diary_entry_by_title
+)
+from motor.motor_asyncio import AsyncIOMotorCollection
 
 
 diary_router = APIRouter()
@@ -21,50 +29,49 @@ def analyze_text(text: str) -> str:
     response_model=DiaryEntry,
     status_code=status.HTTP_201_CREATED
 )
-async def create_diary_entry(entry: DiaryEntry):
+async def create_entry(entry: DiaryEntry, db: AsyncIOMotorCollection = Depends(get_database)):
     """
     Recibe una entrada del diario, la analiza y la guarda.
     Se verifica que no exista ya una entrada con el mismo título.
     """
-    # Verificar si ya existe una entrada con el mismo título (se asume título único)
-    for diary in diary_entries:
-        if diary.titulo == entry.titulo:
-            raise HTTPException(
-                status_code=400, 
-                detail="Ya existe una entrada con este título."
-            )
-    
-    # Simular análisis del contenido de la entrada
-    emotion_result = analyze_text(entry.entrada)
-    # Se podría almacenar o utilizar el resultado del análisis según las necesidades.
-    print(f"Análisis de la entrada '{entry.titulo}': {emotion_result}")
-    
-    diary_entries.append(entry)
-    return entry
+    try:
+        # Simular análisis del contenido de la entrada
+        emotion_result = analyze_text(entry.entrada)
+        print(f"Análisis de la entrada '{entry.titulo}': {emotion_result}")
+
+        # Crear la entrada en la base de datos
+        created_entry = await create_diary_entry(db.diary, entry)
+        return created_entry
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
 
 @diary_router.get(
     '/diary',
     response_model=List[DiaryEntry],
     status_code=status.HTTP_200_OK
 )
-async def get_all_diary_entries():
+async def get_all_entries(db: AsyncIOMotorCollection = Depends(get_database)):
     """
     Devuelve todas las entradas del diario.
     """
-    return diary_entries
+    entries = await get_all_diary_entries(db.diary)
+    return entries
 
 @diary_router.get(
     '/diary/{titulo}',
     response_model=DiaryEntry,
     status_code=status.HTTP_200_OK
 )
-async def get_diary_entry(titulo: str):
+async def get_entry_by_title(titulo: str, db: AsyncIOMotorCollection = Depends(get_database)):
     """
-    Devuelve una única entrada del diario según el título.
+    Devuelve una única entrada del diario según el título desde MongoDB.
     """
-    for diary in diary_entries:
-        if diary.titulo == titulo:
-            return diary
+    entry = await get_diary_entry_by_title(db.diary, titulo)
+    if entry:
+        return entry
     raise HTTPException(
         status_code=404,
         detail="Entrada del diario no encontrada."
@@ -74,14 +81,13 @@ async def get_diary_entry(titulo: str):
     '/diary/{titulo}',
     status_code=status.HTTP_200_OK
 )
-async def delete_diary_entry(titulo: str):
+async def delete_entry_by_title(titulo: str, db: AsyncIOMotorCollection = Depends(get_database)):
     """
-    Permite borrar una entrada del diario según el título.
+    Elimina una entrada del diario según el título desde MongoDB.
     """
-    for idx, diary in enumerate(diary_entries):
-        if diary.titulo == titulo:
-            diary_entries.pop(idx)
-            return {"detail": f"Entrada '{titulo}' eliminada correctamente."}
+    deleted = await delete_diary_entry_by_title(db.diary, titulo)
+    if deleted:
+        return {"detail": f"Entrada '{titulo}' eliminada correctamente."}
     raise HTTPException(
         status_code=404,
         detail="Entrada del diario no encontrada."
