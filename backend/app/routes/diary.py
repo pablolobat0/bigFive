@@ -9,7 +9,7 @@ from app.db.crud.diary import (
     get_diary_entry_by_title,
     delete_diary_entry_by_title
 )
-from app.db.crud.user import get_user_by_id, update_user_emotions
+from app.db.crud.user import  update_user_emotions
 from motor.motor_asyncio import AsyncIOMotorCollection
 from app.services.emotions.personalityUpdate import update_personality
 
