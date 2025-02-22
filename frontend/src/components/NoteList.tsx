@@ -1,5 +1,3 @@
-import React from "react";
-
 const NoteList = ({ notes, selectedNote, onSelectNote, onNewNote }: any) => {
   return (
     <aside className="w-1/3 bg-sidebar p-4 flex flex-col">
