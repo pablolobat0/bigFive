@@ -18,7 +18,9 @@ const Header: React.FC = () => {
 
         {/* Icono de usuario */}
         <div className="flex items-center">
-          <FaUserCircle className="text-4xl text-white bg-[#ffb4a2] rounded-full p-2 shadow-md" />
+          <Link to="/login">
+            <FaUserCircle className="text-4xl text-white bg-[#ffb4a2] rounded-full p-2 shadow-md cursor-pointer transition-transform hover:scale-110" />
+          </Link>
         </div>
       </div>
     </header>
