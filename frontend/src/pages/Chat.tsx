@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-import { FaUserCircle, FaComments, FaCog } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import {  FaComments, FaCog } from "react-icons/fa";
 import Header from "../components/Header";
-import Footer from "../components/Footer";
 
 const ChatPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("chat");
@@ -13,7 +11,7 @@ const ChatPage: React.FC = () => {
   const handleSendMessage = async () => {
       try {
           // Llamar a la API con el mensaje del usuario
-          const response = await fetch("http://0.0.0.0:8000/messages", {
+          const response = await fetch("http://localhost:8000/messages", {
               method: "POST",
               headers: {
                   "Content-Type": "application/json",
@@ -26,7 +24,7 @@ const ChatPage: React.FC = () => {
           }
 
           const data = await response.json();
-          setApiResponse(data.message); // Asumimos que la API devuelve un objeto con un campo "message"
+          setApiResponse(data.text); // Asumimos que la API devuelve un objeto con un campo "message"
       } catch (error) {
           console.error("Error:", error);
           setApiResponse("Hubo un error al procesar tu mensaje.");
