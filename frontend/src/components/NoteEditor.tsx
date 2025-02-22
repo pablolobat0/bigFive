@@ -37,11 +37,9 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onUpdateNote, onDeleteNot
         className="w-full flex-1 p-4 bg-transparent border-none resize-none focus:outline-none text-gray-700 overflow-y-auto"
         placeholder="Escribe aquí..."
         style={{
-          
-
-            backgroundImage: "linear-gradient(transparent 90%, rgba(0,0,0,0.1) 10%)",
+            backgroundImage: "linear-gradient(transparent 90%, rgba(0,0,0,0.1) 0.05rem)",
             backgroundSize: "100% 2rem",
-            lineHeight: "2rem",
+            lineHeight: "1.8rem",
             backgroundAttachment: "local", // Permite que las líneas se muevan con el scroll
             backgroundPosition: "0 1.8rem", // Ajusta la posición vertical del fondo
             paddingTop: "0.2rem", // Ajusta el padding superior para alinear el texto con las líneas
