@@ -58,7 +58,7 @@ const options = {
       pointLabels: {
         font: {
           size: 14, // Tamaño de las etiquetas
-          weight: "bold", // Grosor de las etiquetas
+          weight: "bold" as const, // Grosor de las etiquetas
         },
         color: "#4a5568", // Color de las etiquetas
       },
