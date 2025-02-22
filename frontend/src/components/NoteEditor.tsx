@@ -42,3 +42,4 @@ const NoteEditor = ({ note, onUpdateNote, onDeleteNote }: any) => {
 };
 
 export default NoteEditor;
+
