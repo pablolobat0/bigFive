@@ -10,13 +10,20 @@ from app.db.crud.diary import (
 )
 from motor.motor_asyncio import AsyncIOMotorCollection
 
-from emotions.personalityUpdate import update_personality
+from services.emotions.personalityUpdate import update_personality
 
 
 diary_router = APIRouter()
 
 # Simulación de almacenamiento en memoria para las entradas del diario
 diary_entries: List[DiaryEntry] = []
+
+def analyze_text(text: str) -> str:
+    """
+    Función simulada para analizar el texto de una entrada del diario.
+    """
+    return "neutral"
+
 
 def new_personality(text: str, big5_scores: dict, bfi_ranges: dict, alpha: float) -> str:
     """
