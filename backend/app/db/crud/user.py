@@ -3,6 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorCollection
 from passlib.context import CryptContext
 from app.auth.utils import create_access_token
 from app.models.user import UserCreate, UserLogin
+from typing import Optional, Dict, Any
 
 # Configuración de hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -45,3 +46,39 @@ async def login_user(collection: AsyncIOMotorCollection, user: UserLogin) -> dic
     # Generar el token JWT
     access_token = create_access_token(data={"sub": user.email})
     return {"access_token": access_token, "token_type": "bearer"}
+
+async def get_user_by_id(collection: AsyncIOMotorCollection, user_id: str) -> Optional[dict]:
+    """
+    Busca un usuario por su user_id.
+    Devuelve el usuario si lo encuentra, de lo contrario devuelve None.
+    """
+    user = await collection.find_one({"user_id": user_id})
+    if user:
+        # Eliminar el campo password_hash por seguridad
+        user.pop("password_hash", None)
+    return user
+
+
+async def update_user_emotions(collection: AsyncIOMotorCollection, user_id: str, new_emotions: Dict[str, Any]) -> bool:
+    """
+    Actualiza el campo 'emotions' de un usuario en la base de datos.
+
+    Parámetros:
+        collection (AsyncIOMotorCollection): La colección de MongoDB.
+        user_id (str): El ID del usuario a actualizar.
+        new_emotions (Dict[str, Any]): El nuevo valor para el campo 'emotions'.
+
+    Retorna:
+        bool: True si la actualización fue exitosa, False si el usuario no fue encontrado.
+    """
+    # Buscar y actualizar el usuario por su user_id
+    result = await collection.update_one(
+        {"user_id": user_id},  # Filtro para encontrar el usuario
+        {"$set": {"emotions": new_emotions}}  # Nuevo valor para el campo emotions
+    )
+
+    # Verificar si se actualizó correctamente
+    if result.matched_count > 0:
+        return True  # El usuario fue encontrado y actualizado
+    else:
+        return False  # El usuario no fue encontrado

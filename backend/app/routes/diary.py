@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from typing import List
 from app.models.diary import DiaryEntry
+from app.models.user import user_example
 from app.db.utils import get_database
 from app.db.crud.diary import (
     get_all_diary_entries,
@@ -8,8 +9,8 @@ from app.db.crud.diary import (
     get_diary_entry_by_title,
     delete_diary_entry_by_title
 )
+from app.db.crud.user import get_user_by_id, update_user_emotions
 from motor.motor_asyncio import AsyncIOMotorCollection
-
 from services.emotions.personalityUpdate import update_personality
 
 
@@ -25,11 +26,11 @@ def analyze_text(text: str) -> str:
     return "neutral"
 
 
-def new_personality(text: str, big5_scores: dict, bfi_ranges: dict, alpha: float) -> str:
+def new_personality(text: str, user_emotions: dict ) -> dict:
     """
     Función simulada para actualizar los puntajes de personalidad.
     """    
-    return update_personality(text, big5_scores, bfi_ranges, alpha)
+    return update_personality(text, user_emotions)
 
 @diary_router.post(
     '/diary',
@@ -43,9 +44,13 @@ async def create_entry(entry: DiaryEntry, db: AsyncIOMotorCollection = Depends(g
     """
     try:
         # Simular análisis del contenido de la entrada
-        emotion_result = analyze_text(entry.entrada)
-        print(f"Análisis de la entrada '{entry.titulo}': {emotion_result}")
-
+        #user = await get_user_by_id(db,entry.user_id)
+        user = user_example.model_dump()
+        if user and "emotions" in user:
+            new_emotions = new_personality(entry.entrada, user['emotions'])
+            update_success = await update_user_emotions(db, entry.user_id, new_emotions)
+            if update_success:
+                print("Emociones actualizadas correctamente.")
         # Crear la entrada en la base de datos
         created_entry = await create_diary_entry(db.diary, entry)
         return created_entry
