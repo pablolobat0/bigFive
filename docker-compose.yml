@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   backend:
     build:
@@ -7,3 +5,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+  mongo:
+    image: mongo:8.0
+    container_name: mongo
+    environment:
+      - MONGO_INITDB_DATABASE=${DATABASE_NAME}
+    ports:
+      - "27017:27017"
