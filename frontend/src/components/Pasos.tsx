@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "framer-motion"; // Importamos Framer Motion
 import register from "../assets/register.png";
 import chatbot from "../assets/chatbot.png";
 import coach from "../assets/coach.png";
@@ -20,11 +21,17 @@ const Pasos: React.FC = () => {
               Regístrate y crea tu perfil.
             </h3>
             <div className="flex items-end justify-between w-full">
-              <div className="mt-auto">
-                <button className="bg-white border border-secondary text-secondary px-6 py-4 rounded-lg hover:bg-secondary/20 transition self-start">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <button className="bg-white border border-secondary text-secondary px-6 py-4 rounded-lg ">
                   Registrarse
                 </button>
-              </div>
+              </motion.div>
               <img
                 src={register}
                 alt="Registro"
@@ -39,11 +46,17 @@ const Pasos: React.FC = () => {
               Habla con el chatbot y registra tu día.
             </h3>
             <div className="flex items-end justify-between w-full">
-              <div className="mt-auto">
-                <button className="bg-white border border-secondary text-secondary px-6 py-4 rounded-lg hover:bg-secondary/20 transition">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, ease: "easeOut"}}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <button className="bg-white border border-secondary text-secondary px-6 py-4 rounded-lg">
                   Hablar
                 </button>
-              </div>
+              </motion.div>
               <img src={chatbot} alt="Chatbot" className="w-36 h-36 self-end" />
             </div>
           </div>
@@ -54,11 +67,17 @@ const Pasos: React.FC = () => {
               Recibe análisis personalizados y recomendaciones.
             </h3>
             <div className="flex items-end justify-between w-full">
-              <div className="mt-auto">
-                <button className="bg-white border border-secondary text-secondary px-6 py-4 rounded-lg hover:bg-secondary/20 transition">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, ease: "easeOut"}}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <button className="bg-white border border-secondary text-secondary px-6 py-4 rounded-lg">
                   Coach
                 </button>
-              </div>
+              </motion.div>
               <img src={coach} alt="Coach" className="w-36 h-36 self-end" />
             </div>
           </div>

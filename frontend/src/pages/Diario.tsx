@@ -3,6 +3,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import NoteList from "../components/NoteList";
 import NoteEditor from "../components/NoteEditor";
+import { motion } from "framer-motion";
 
 const DiarioPage: React.FC = () => {
   const [notes, setNotes] = useState([
@@ -64,18 +65,25 @@ const DiarioPage: React.FC = () => {
     <div className="bg-landing2Bg min-h-screen w-full flex flex-col">
       <Header />
       <div className="flex flex-1 bg-white shadow-lg rounded-lg overflow-hidden mt-10 mb-10 p-8 mx-10 max-w-6xl w-full self-center h-[80vh]">
-        <NoteList
-          notes={notes}
-          selectedNote={selectedNote}
-          onSelectNote={handleSelectNote}
-          onNewNote={handleNewNote}
-        />
-        <NoteEditor
-          note={selectedNote}
-          onUpdateNote={handleUpdateNote}
-          onDeleteNote={handleDeleteNote}
-          isSaving={isSaving}
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="flex flex-1 bg-white shadow-lg rounded-lg overflow-hidden mt-10 mb-10 p-8 mx-10 max-w-6xl w-full self-center h-[80vh]"
+        >
+          <NoteList
+            notes={notes}
+            selectedNote={selectedNote}
+            onSelectNote={handleSelectNote}
+            onNewNote={handleNewNote}
+          />
+          <NoteEditor
+            note={selectedNote}
+            onUpdateNote={handleUpdateNote}
+            onDeleteNote={handleDeleteNote}
+            isSaving={isSaving}
+          />
+        </motion.div>
       </div>
       <Footer />
     </div>

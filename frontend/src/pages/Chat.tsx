@@ -3,6 +3,7 @@ import ChatSidebar from "../components/ChatSidebar";
 import ChatMessages from "../components/ChatMessages";
 import ChatInput from "../components/ChatInput";
 import Header from "../components/Header";
+import { motion } from "framer-motion";
 
 const quickQuestions = [
   "Hoy me siento triste y no sé por qué.",
@@ -70,40 +71,54 @@ const Chat: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen w-full">
-      <Header />
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        exit={{ opacity: 0, y: 20 }} 
+        transition={{ duration: 0.4 }}
+        className="flex flex-col h-screen w-full"
+      >
+        <Header />
 
-      <div className="flex flex-1 w-full bg-primary">
-        <ChatSidebar chats={chats} selectedChat={selectedChat} onSelectChat={handleSelectChat} onNewChat={handleNewChat} />
+        <div className="flex flex-1 w-full bg-primary">
+          <ChatSidebar chats={chats} selectedChat={selectedChat} onSelectChat={handleSelectChat} onNewChat={handleNewChat} />
 
-        <div className="flex flex-col flex-1 h-full">
-          {/* ✅ Preguntas rápidas centradas y en cuadrícula de 2x2 */}
-          {!hasSentMessage && (
-            <div className="flex flex-1 items-center justify-center">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-lg text-center">
-                {quickQuestions.map((question, index) => (
-                  <button
-                    key={index}
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 p-4 rounded-lg transition shadow-lg"
-                    onClick={() => sendMessage(question)}
-                  >
-                    {question}
-                  </button>
-                ))}
+          <div className="flex flex-col flex-1 h-full">
+            {/* ✅ Preguntas rápidas centradas y en cuadrícula de 2x2 */}
+            {!hasSentMessage && (
+              <div className="flex flex-1 items-center justify-center">
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.8 }} 
+                  animate={{ opacity: 1, scale: 1 }} 
+                  transition={{ duration: 0.3 }}
+                  className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-lg text-center"
+                >
+                  {quickQuestions.map((question, index) => (
+                    <motion.button
+                      key={index}
+                      whileHover={{ scale: 1.05 }}
+                      className="bg-gray-200 hover:bg-gray-300 text-gray-800 p-4 rounded-lg transition shadow-lg"
+                      onClick={() => sendMessage(question)}
+                    >
+                      {question}
+                    </motion.button>
+                  ))}
+                </motion.div>
               </div>
+            )}
+
+            {/* Área de mensajes con desplazamiento */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[calc(100vh-160px)]">
+              <ChatMessages messages={messages} />
             </div>
-          )}
 
-          {/* Área de mensajes con desplazamiento */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[calc(100vh-160px)]">
-            <ChatMessages messages={messages} />
-          </div>
-
-          {/* Input de texto */}
-          <div className="border-t bg-white p-4 sticky bottom-0 w-full">
-            <ChatInput sendMessage={sendMessage} />
+            {/* Input de texto */}
+            <div className="border-t bg-white p-4 sticky bottom-0 w-full">
+              <ChatInput sendMessage={sendMessage} />
+            </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

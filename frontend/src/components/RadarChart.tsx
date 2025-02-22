@@ -43,11 +43,13 @@ const data = {
   ],
 };
 
-const options = {
+// ✅ Corrección de tipos en options
+const options: any = {
   responsive: true,
   maintainAspectRatio: false, // Permite ajustar el tamaño manualmente
   scales: {
     r: {
+      type: "radialLinear", // Agregamos el tipo para evitar errores
       angleLines: {
         display: true,
         color: "rgba(200, 200, 200, 0.3)", // Color de las líneas angulares
@@ -57,13 +59,13 @@ const options = {
       },
       pointLabels: {
         font: {
-          size: 14, // Tamaño de las etiquetas
-          weight: "bold" as const, // Grosor de las etiquetas
+          size: 14,
+          weight: 700, // 🔥 Se cambia de "bold" a 700 (valor numérico válido)
         },
-        color: "#4a5568", // Color de las etiquetas
+        color: "#4a5568",
       },
       ticks: {
-        display: false, // Oculta los números en los ejes
+        display: false,
         beginAtZero: true,
       },
     },
@@ -75,8 +77,8 @@ const options = {
     tooltip: {
       enabled: true, // Habilita los tooltips
       backgroundColor: "rgba(0, 0, 0, 0.8)", // Fondo del tooltip
-      titleFont: { size: 14 }, // Tamaño del título del tooltip
-      bodyFont: { size: 12 }, // Tamaño del cuerpo del tooltip
+      titleFont: { size: 14 },
+      bodyFont: { size: 12 },
     },
   },
 };
