@@ -7,7 +7,7 @@ load_dotenv()
 
 # Configuración de MongoDB
 MONGODB_URI = os.getenv("MONGODB_URI")
-DATABASE_NAME = os.getenv("DATABASE_NAME")
+DATABASE_NAME = os.getenv("DATABASE_NAME", "default")
 
 client = None
 db = None
@@ -18,7 +18,7 @@ async def get_mongo_client():
     """
     global client, db
     client = motor.motor_asyncio.AsyncIOMotorClient(MONGODB_URI)
-    db = client.DATABASE_NAME
+    db = client[DATABASE_NAME]
 
 async def get_database():
     """
