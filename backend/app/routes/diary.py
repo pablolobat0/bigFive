@@ -11,7 +11,6 @@ from app.db.crud.diary import (
 )
 from app.db.crud.user import get_user_by_id, update_user_emotions
 from motor.motor_asyncio import AsyncIOMotorCollection
-from services.emotions.personalityUpdate import update_personality
 
 
 diary_router = APIRouter()
@@ -30,7 +29,7 @@ def new_personality(text: str, user_emotions: dict ) -> dict:
     """
     Función simulada para actualizar los puntajes de personalidad.
     """    
-    return update_personality(text, user_emotions)
+    return {}
 
 @diary_router.post(
     '/diary',
