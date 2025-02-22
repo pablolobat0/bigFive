@@ -1,17 +1,4 @@
 services:
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-  mongo:
-    image: mongo:8.0
-    container_name: mongo
-    environment:
-      - MONGO_INITDB_DATABASE=${DATABASE_NAME}
-    ports:
-      - "27017:27017"
   frontend:
     build:
       context: ./frontend
@@ -20,4 +7,25 @@ services:
       - "3000:80"  
     depends_on:
       - backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - mongo
+  mongo:
+    image: mongo:8.0
+    container_name: mongo
+    environment:
+      - MONGO_INITDB_DATABASE=${DATABASE_NAME}
+    ports:
+      - "27017:27017"
+  redis:
+    image: redis:7.4.2
+    container_name: redis
+    ports:
+      - "6379:6379"
 

@@ -13,6 +13,7 @@ pyjwt = "*"
 pydantic = {extras = ["email"], version = "*"}
 passlib = "*" 
 bcrypt = "*"
+redis = "*"
 
 [dev-packages]
 
