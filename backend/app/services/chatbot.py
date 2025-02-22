@@ -21,11 +21,25 @@ class ChatbotService:
         :param messages: Lista de mensajes en formato de diccionario con claves "role" y "content".
         :return: Respuesta generada o None si hay un error.
         """
+        # Agregar un prompt inicial de sistema para definir el comportamiento del chatbot
+        system_prompt = {
+            "role": "system",
+            "content": (
+                "Eres un terapeuta virtual amigable y empático especializado en brindar apoyo emocional y orientación psicológica. "
+                "Tu objetivo es escuchar activamente a los usuarios, ofrecer respuestas empáticas y ayudarles a reflexionar sobre sus emociones y situaciones. "
+                "Habla de manera cálida y profesional, y evita dar diagnósticos médicos o tratamientos. "
+                "Ofrece herramientas de afrontamiento, preguntas reflexivas y sugerencias generales para mejorar el bienestar emocional. "
+                "Recuerda: tu rol es escuchar y guiar, no juzgar."
+            )
+        }
+
+        # Combinar el prompt inicial con los mensajes del usuario
+        full_messages = [system_prompt] + messages
         try:
             # Llamada a la API 
             response = self.client.chat.completions.create(
                 model="r1-1776",
-                messages=messages #type: ignore
+                messages=full_messages #type: ignore
             )
              # Obtener el contenido de la respuesta
             full_response = response.choices[0].message.content
