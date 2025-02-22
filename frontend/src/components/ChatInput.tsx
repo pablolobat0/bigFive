@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 
 interface ChatInputProps {
   sendMessage: (message: string) => void;
@@ -23,17 +24,21 @@ const ChatInput: React.FC<ChatInputProps> = ({ sendMessage }) => {
 
   return (
     <div className="w-full flex items-center border rounded-lg p-2 bg-white">
-      <input
-        type="text"
-        placeholder="Escribe aquí tu mensaje..."
-        className="flex-1 p-2 outline-none"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={handleKeyDown}
-      />
-      <button className="px-4 py-2 bg-third text-white rounded-lg ml-2" onClick={handleSend}>
-        Enviar
-      </button>
+        <input
+            type="text"
+            placeholder="Escribe aquí tu mensaje..."
+            className="flex-1 p-2 outline-none"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+        />
+        <motion.button
+            className="px-4 py-2 bg-third text-white rounded-lg ml-2"
+            whileTap={{ scale: 0.9 }}
+            onClick={handleSend}
+        >
+            Enviar
+        </motion.button>
     </div>
   );
 };
