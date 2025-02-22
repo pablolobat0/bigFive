@@ -3,6 +3,7 @@ import sonriendo from "../assets/sonriendo.png";
 import relajandose from "../assets/relajandose.png";
 import gorro from "../assets/gorro.png";
 import meditando from "../assets/meditando.png";
+import { Link } from "react-router-dom";
 
 const Inicio: React.FC = () => {
   return (
@@ -19,9 +20,11 @@ const Inicio: React.FC = () => {
             Creemos en crear un espacio seguro y de apoyo para las personas que
             buscan sanación mental y emocional.
           </p>
-          <button className="bg-green-600 text-white px-6 py-3 rounded-lg text-lg hover:bg-green-700 transition">
-            Empieza a hablar
-          </button>
+          <Link to="/chat">
+            <button className="bg-secondary text-white px-6 py-3 rounded-lg text-lg hover:bg-green-700 transition">
+              Empieza a hablar
+            </button>
+          </Link>
         </div>
 
         {/* Cuadrícula de imágenes */}

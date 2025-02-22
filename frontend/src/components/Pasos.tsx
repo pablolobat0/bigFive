@@ -21,7 +21,7 @@ const Pasos: React.FC = () => {
             </h3>
             <div className="flex items-end justify-between w-full">
               <div className="mt-auto">
-                <button className="bg-primary border border-secondary text-secondary px-6 py-4 rounded-lg hover:bg-secondary/20 transition self-start">
+                <button className="bg-white border border-secondary text-secondary px-6 py-4 rounded-lg hover:bg-secondary/20 transition self-start">
                   Registrarse
                 </button>
               </div>
@@ -40,7 +40,7 @@ const Pasos: React.FC = () => {
             </h3>
             <div className="flex items-end justify-between w-full">
               <div className="mt-auto">
-                <button className="bg-primary border border-secondary text-secondary px-6 py-4 rounded-lg hover:bg-secondary/20 transition">
+                <button className="bg-white border border-secondary text-secondary px-6 py-4 rounded-lg hover:bg-secondary/20 transition">
                   Hablar
                 </button>
               </div>
@@ -55,7 +55,7 @@ const Pasos: React.FC = () => {
             </h3>
             <div className="flex items-end justify-between w-full">
               <div className="mt-auto">
-                <button className="bg-primary border border-secondary text-secondary px-6 py-4 rounded-lg hover:bg-secondary/20 transition">
+                <button className="bg-white border border-secondary text-secondary px-6 py-4 rounded-lg hover:bg-secondary/20 transition">
                   Coach
                 </button>
               </div>

@@ -1,9 +1,10 @@
 import React from "react";
 
 interface Note {
-  id: string;
+  id: number;
   title: string;
   date: string;
+  content: string;
 }
 
 interface NoteListProps {
@@ -38,7 +39,7 @@ const NoteList: React.FC<NoteListProps> = ({ notes, selectedNote, onSelectNote, 
             className={`block w-full text-left px-4 py-3 rounded-lg mb-2 transition-all ${
               selectedNote && selectedNote.id === note.id
                 ? "bg-third text-white" // ✅ Resalta solo la nota seleccionada
-                : "text-white hover:bg-gray-200"
+                : "bg-gray-200 text-black hover:bg-gray-300"
             }`}
             onClick={() => onSelectNote(note)}
           >

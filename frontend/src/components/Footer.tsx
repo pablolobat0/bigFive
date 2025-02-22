@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
         
         {/* Redes sociales */}
         <div className="flex space-x-6 text-white text-2xl">
-            <a href="https://github.com/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-300 transition">
+            <a href="https://github.com/pablolobat0/hackathon" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-300 transition">
                 <FaGithub />
             </a>
             <a href="https://linkedin.com/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-300 transition">

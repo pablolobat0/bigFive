@@ -24,7 +24,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, selectedChat, onSelect
           <button
             key={chat.id}
             className={`block w-full text-left px-4 py-3 rounded-lg mb-2 transition-all ${
-              selectedChat === chat.id ? "bg-third text-white" : "text-white hover:bg-gray-200"
+              selectedChat === chat.id ? "bg-third text-white" : "bg-gray-200 text-black hover:bg-gray-300"
             }`}
             onClick={() => onSelectChat(chat.id)}
           >
