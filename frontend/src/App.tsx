@@ -10,7 +10,7 @@ import Profile from "./pages/Profile.tsx";
 
 const App: React.FC = () => {
   return (
-    <div className="bg-white min-h-screen w-full max-w-full overflow-x-hidden flex flex-col items-center pt-20">
+    <div className="bg-white min-h-screen w-full max-w-full overflow-x-hidden flex flex-col items-center">
     <Routes>
       <Route path="/" element={<Navigate to="/inicio" />} />
       <Route path="/inicio" element={<LandingPage />} />
