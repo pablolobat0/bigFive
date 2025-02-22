@@ -22,15 +22,12 @@ chatbot_service = ChatbotService()
     response_model=ChatResponse, 
     status_code=status.HTTP_201_CREATED
 )
-async def process_message(message: ChatMessage, db: AsyncIOMotorCollection = Depends(get_database)):
+async def process_message(message: ChatMessage):
     """
     Recibe un mensaje del chatbot, lo procesa (por ejemplo, analizando el sentimiento) 
     y lo almacena antes de enviarlo al LLM para una respuesta final.
     """
     try:
-        # Crear el mensaje en la base de datos
-        created_message = await create_message(db.messages, message)
-
         # Almacenar el mensaje en Redis
         redis_key = f"chat:{message.user_id}"
         redis_client.rpush(redis_key, message.text)  # Agrega el mensaje a la lista de Redis
@@ -40,7 +37,6 @@ async def process_message(message: ChatMessage, db: AsyncIOMotorCollection = Dep
 
         # Se carga toda la conversacion anterior y el mensaje actual
         conversation_history: List[Dict[Literal["role", "content"], str]] = get_user_conversation(message.user_id)
-        conversation_history.append({"role": "user", "content": message.text})
 
         # Obtener la respuesta del chatbot
         chatbot_response = chatbot_service.get_chat_response(conversation_history)
@@ -55,7 +51,7 @@ async def process_message(message: ChatMessage, db: AsyncIOMotorCollection = Dep
         redis_client.rpush(redis_key, chatbot_response)
 
         # Devolver la respuesta con el resultado del análisis
-        return ChatResponse(id=created_message["id"], text=chatbot_response, emotion=emotion)
+        return ChatResponse(id=message.user_id, text=chatbot_response, emotion=emotion)
     except ValueError as e:
         raise HTTPException(
             status_code=400,
