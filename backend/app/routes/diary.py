@@ -10,19 +10,19 @@ from app.db.crud.diary import (
 )
 from motor.motor_asyncio import AsyncIOMotorCollection
 
+from emotions.personalityUpdate import update_personality
+
 
 diary_router = APIRouter()
 
 # Simulación de almacenamiento en memoria para las entradas del diario
 diary_entries: List[DiaryEntry] = []
 
-def analyze_text(text: str) -> str:
+def new_personality(text: str, big5_scores: dict, bfi_ranges: dict, alpha: float) -> str:
     """
-    Función simulada para analizar el contenido de la entrada.
-    En una implementación real se integraría un modelo de análisis (ej. Vader, text2emotion, etc.)
-    """
-    # Por ejemplo, se podría devolver "neutral", "positivo" o "negativo".
-    return "neutral"
+    Función simulada para actualizar los puntajes de personalidad.
+    """    
+    return update_personality(text, big5_scores, bfi_ranges, alpha)
 
 @diary_router.post(
     '/diary',
