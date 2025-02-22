@@ -6,7 +6,7 @@ import meditando from "../assets/meditando.png";
 
 const Inicio: React.FC = () => {
   return (
-    <section className="w-full min-h-screen flex items-center justify-center px-8 pb-10">
+    <section className="w-full h-[calc(98vh-4rem)] max-h-[calc(98vh-4rem)] flex items-center justify-center px-8 overflow-hidden">
       <div className="container mx-32 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         {/* Texto a la izquierda */}
         <div className="space-y-6">
