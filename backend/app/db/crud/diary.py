@@ -22,11 +22,11 @@ async def create_diary_entry(collection: AsyncIOMotorCollection, entry: DiaryEnt
         return entry_dict
     raise ValueError("No se pudo crear la entrada.")
 
-async def get_all_diary_entries(collection: AsyncIOMotorCollection) -> List[dict]:
+async def get_all_diary_entries_by_user_id(collection: AsyncIOMotorCollection, user_id: str) -> List[dict]:
     """
     Obtiene todas las entradas del diario.
     """
-    entries = await collection.find().to_list(length=100)  # Limitar a 100 entradas
+    entries = await collection.find({"user_id": user_id}).to_list(length=100)  # Limitar a 100 entradas
     return entries
 
 async def get_diary_entry_by_title(collection: AsyncIOMotorCollection, titulo: str) -> Optional[dict]:

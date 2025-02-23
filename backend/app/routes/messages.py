@@ -50,28 +50,4 @@ async def process_message(message: ChatMessage):
             detail=str(e)
         )
 
-@message_router.get(
-    '/messages', 
-    response_model=List[ChatMessage],
-    status_code=status.HTTP_200_OK
-)
-async def get_messages(db: AsyncIOMotorCollection = Depends(get_database)):
-    """
-    Permite consultar todos los mensajes almacenados en MongoDB.
-    """
-    messages = await get_all_messages(db.messages)
-    return messages
-@message_router.get(
-    '/messages/{message_id}', 
-    response_model=ChatMessage,
-    status_code=status.HTTP_200_OK
-)
 
-async def get_message(message_id: str, db: AsyncIOMotorCollection = Depends(get_database)):
-    """
-    Permite consultar un mensaje específico por su ID desde MongoDB.
-    """
-    message = await get_message_by_id(db.messages, message_id)
-    if message:
-        return message
-    raise HTTPException(status_code=404, detail="Mensaje no encontrado")
