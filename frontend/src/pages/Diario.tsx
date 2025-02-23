@@ -1,44 +1,53 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import NoteList from "../components/NoteList";
 import NoteEditor from "../components/NoteEditor";
 import { motion } from "framer-motion";
 
+interface Note {
+  user_id: string;
+  titulo: string;
+  entrada: string;
+}
+
 const DiarioPage: React.FC = () => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const apiUrl = "http://localhost:8000/diary"; // URL de la API
-
-  interface Note {
-    id: number;
-    title: string;
-    content: string;
-  }
 
   /**
    * ✅ Carga las notas desde la API al iniciar la página.
    */
   useEffect(() => {
-    fetch(apiUrl)
-      .then((response) => response.json())
-      .then((data) => {
-        if (!Array.isArray(data)) {
-          console.error("La API no devolvió un array:", data);
-          return;
+    const fetchNotes = async () => {
+      try {
+        const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({user_id: "12345"}),
+      });
+        if (!response.ok) {
+          throw new Error(`Error al cargar las notas: ${response.statusText}`);
         }
+        const data = await response.json();
+        if (!Array.isArray(data)) {
+          throw new Error("La API no devolvió un array de notas.");
+        }
+        setNotes(data);
+      } catch (error) {
+        console.error("Error al obtener notas:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-        const formattedNotes = data.map((note: any) => ({
-          id: Number(note.id) || Date.now(), // ✅ Asegura que el ID sea un número
-          title: String(note.titulo) || "Sin título",
-          content: String(note.entrada) || "",
-        }));
-
-        setNotes(formattedNotes);
-        setSelectedNote(formattedNotes.length > 0 ? formattedNotes[0] : null);
-      })
-      .catch((error) => console.error("Error al obtener notas:", error));
+    fetchNotes();
   }, []);
 
   const handleSelectNote = (note: Note) => {
@@ -48,69 +57,53 @@ const DiarioPage: React.FC = () => {
   /**
    * ✅ Guardar la nota en la API y actualizar el estado
    */
-  const handleUpdateNote = async (updatedNote: { id: number; title: string; content: string }) => {
-    setIsSaving(true); // Indicar que se está guardando
-
-    const diaryEntry = {
-      user_id: "12345", // ⚠️ Cambia esto por el ID del usuario real
-      titulo: updatedNote.title,
-      entrada: updatedNote.content,
-    };
+  const handleUpdateNote = async (updatedNote: Note) => {
+    setIsSaving(true);
+    setError(null);
 
     try {
-      console.log("Guardando nota en la API...", diaryEntry);
-
       const response = await fetch(apiUrl, {
-        method: "POST", // Cambia a "PUT" si necesitas actualizar en lugar de crear
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(diaryEntry),
+        body: JSON.stringify(updatedNote),
       });
 
       if (!response.ok) {
-        throw new Error(`Error al guardar la nota: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Error al guardar la nota");
       }
 
       const savedNote = await response.json();
-      console.log("Nota guardada con éxito:", savedNote);
-
-      // ✅ Convertir ID a número
-      const updatedNoteWithId: Note = {
-        id: Number(updatedNote.id),
-        title: updatedNote.title,
-        content: updatedNote.content,
-      };
-
-      // ✅ Actualizar el estado local con la respuesta de la API
       setNotes((prevNotes) =>
-        prevNotes.map((note) => (note.id === updatedNoteWithId.id ? updatedNoteWithId : note))
+        prevNotes.map((note) =>
+          note.user_id === updatedNote.user_id ? savedNote : note
+        )
       );
-      setSelectedNote(updatedNoteWithId);
+      setSelectedNote(savedNote);
     } catch (error) {
       console.error("Error al guardar la nota:", error);
     } finally {
-      setIsSaving(false); // Indicar que el guardado ha terminado
+      setIsSaving(false);
     }
   };
 
   const handleNewNote = () => {
-    const newNote = {
-      id: Date.now(), // Usamos Date.now() para evitar IDs duplicados
-      title: "Nueva Nota",
-      content: "",
+    const newNote: Note = {
+      user_id: "12345", // Cambia esto por el ID del usuario real
+      titulo: "Nueva Nota",
+      entrada: "",
     };
 
     setNotes((prevNotes) => [newNote, ...prevNotes]);
     setSelectedNote(newNote);
   };
 
-  const handleDeleteNote = (noteId: number) => {
-    setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId));
-
-    // ✅ Si no hay más notas, dejamos selectedNote en null
+  const handleDeleteNote = (user_id: string) => {
+    setNotes((prevNotes) => prevNotes.filter((note) => note.user_id !== user_id));
     setSelectedNote((prevSelected) =>
-      prevSelected && prevSelected.id === noteId ? null : prevSelected
+      prevSelected && prevSelected.user_id === user_id ? null : prevSelected
     );
   };
 
@@ -130,7 +123,6 @@ const DiarioPage: React.FC = () => {
             onSelectNote={handleSelectNote}
             onNewNote={handleNewNote}
           />
-          {/* ✅ Solo renderiza el editor si hay una nota seleccionada */}
           {selectedNote && (
             <NoteEditor
               note={selectedNote}
@@ -139,6 +131,8 @@ const DiarioPage: React.FC = () => {
               isSaving={isSaving}
             />
           )}
+          {error && <div className="text-red-500 mt-4">{error}</div>}
+          {isLoading && <div className="text-gray-500 mt-4">Cargando notas...</div>}
         </motion.div>
       </div>
       <Footer />
