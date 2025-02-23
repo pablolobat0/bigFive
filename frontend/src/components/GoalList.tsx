@@ -1,21 +1,54 @@
 import ProgressBar from "./ProgressBar";
 
-interface Goal {
-  id: number;
-  title: string;
-  description: string;
-  progress: number;
+// Definir la interfaz para las emociones
+interface Emotions {
+  neuroticism: number;
+  extraversion: number;
+  openness: number;
+  agreeableness: number;
+  conscientiousness: number;
 }
 
-const goals: Goal[] = [
-  { id: 1, title: "Reducir el estrés", description: "Descripción del carallo este", progress: 76 },
-  { id: 2, title: "Aumentar mi confianza", description: "Descripción del carallo este", progress: 100 },
-  { id: 3, title: "Perseverancia", description: "Descripción del carallo este", progress: 30 },
-  { id: 4, title: "Gott mins uns", description: "Descripción del carallo este", progress: 14 },
-  { id: 5, title: "Dios con nosotros", description: "Descripción del carallo este", progress: 56 },
-];
+// Definir las props del componente
+interface GoalListProps {
+  emotions: Emotions | null;
+}
 
-const GoalList = () => {
+const GoalList = ({ emotions }: GoalListProps) => {
+  // Definir los objetivos basados en las emociones
+  const goals = [
+    {
+      id: 1,
+      title: "Reducir el estrés",
+      description: "Trabaja en reducir tu neuroticismo.",
+      progress: emotions ? 100 - emotions.neuroticism : 0,
+    },
+    {
+      id: 2,
+      title: "Aumentar mi confianza",
+      description: "Mejora tu extraversión para sentirte más seguro.",
+      progress: emotions ? emotions.extraversion : 0,
+    },
+    {
+      id: 3,
+      title: "Perseverancia",
+      description: "Desarrolla tu responsabilidad para ser más perseverante.",
+      progress: emotions ? emotions.conscientiousness : 0,
+    },
+    {
+      id: 4,
+      title: "Amabilidad",
+      description: "Trabaja en ser más amable con los demás.",
+      progress: emotions ? emotions.agreeableness : 0,
+    },
+    {
+      id: 5,
+      title: "Apertura a nuevas experiencias",
+      description: "Explora nuevas ideas y actividades.",
+      progress: emotions ? emotions.openness : 0,
+    },
+  ];
+
   return (
     <section className="p-6 bg-white">
       <h2 className="text-2xl font-bold mb-4">Objetivos Personalizados</h2>

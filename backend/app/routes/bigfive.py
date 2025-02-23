@@ -53,7 +53,8 @@ async def get_advices(user_id: str, db: AsyncIOMotorCollection = Depends(get_dat
     Devuelve la calificación en la escala BigFive de la personalidad del usuario
     """
     try:
-        user = await get_user_by_id(db.users, user_id)
+        #user = await get_user_by_id(db.users, user_id)
+        user = user_example
 
         if not user:
             raise ValueError("El usuario no existe")

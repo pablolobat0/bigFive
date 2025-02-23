@@ -1,4 +1,22 @@
-const Recommendations = () => {
+// Definir las props del componente
+interface RecommendationsProps {
+  advice: string | null;
+}
+
+const Recommendations = ({ advice }: RecommendationsProps) => {
+  // Valores por defecto si advice es null
+  const defaultAdvice = [
+    "Ejercicios diarios: Escribe 3 cosas por las que estés agradecido hoy.",
+    "Técnicas de mindfulness y relajación.",
+    "Hábitos saludables: Desconectar el móvil antes de dormir.",
+    "Sesiones de reflexión en el diario emocional.",
+  ];
+
+  // Usar los consejos de la API si están disponibles, de lo contrario, usar los valores por defecto
+  const adviceList = advice
+    ? advice.split("\n").filter((line) => line.trim())
+    : defaultAdvice;
+
   return (
     <section className="bg-gray-100 p-6">
       <h2 className="text-xl font-bold mb-4">
@@ -8,16 +26,9 @@ const Recommendations = () => {
         Basado en su estado emocional y personalidad, el coach recomienda:
       </p>
       <ul className="list-disc list-inside text-gray-700">
-        <li>
-          <strong>Ejercicios diarios:</strong> Escribe 3 cosas por las que estés
-          agradecido hoy.
-        </li>
-        <li>Técnicas de mindfulness y relajación.</li>
-        <li>
-          <strong>Hábitos saludables:</strong> Desconectar el móvil antes de
-          dormir.
-        </li>
-        <li>Sesiones de reflexión en el diario emocional.</li>
+        {adviceList.map((item, index) => (
+          <li key={index}>{item}</li>
+        ))}
       </ul>
     </section>
   );
