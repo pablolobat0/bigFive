@@ -5,6 +5,8 @@ import ChatInput from "../components/ChatInput";
 import Header from "../components/Header";
 import { motion } from "framer-motion";
 
+const API_URL = "http://localhost:8000/messages"; // Reemplaza con la URL de tu API
+
 const quickQuestions = [
   "Hoy me siento triste y no sé por qué.",
   "Quiero mejorar mi autoestima.",
@@ -12,17 +14,21 @@ const quickQuestions = [
   "¿Cómo funciona este chatbot?",
 ];
 
+interface Chat {
+  id: string;
+  title: string;
+  messages: { text: string; sender: "user" | "bot" }[];
+}
+
 const Chat: React.FC = () => {
-  const [chats, setChats] = useState<
-    { id: string; title: string; messages: { text: string; sender: "user" | "bot" }[] }[]
-  >([]);
+  const [chats, setChats] = useState<Chat[]>([]);
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [messages, setMessages] = useState<{ text: string; sender: "user" | "bot" }[]>([]);
   const [hasSentMessage, setHasSentMessage] = useState(false);
 
   const handleNewChat = () => {
-    const newChat = {
-      id: Date.now().toString(),
+    const newChat: Chat = {
+      id: String(Date.now()), // ✅ Convertimos Date.now() a string
       title: "Nuevo Chat",
       messages: [],
     };
@@ -45,28 +51,66 @@ const Chat: React.FC = () => {
     return text.split(" ").slice(0, 3).join(" ") || "Nuevo Chat";
   };
 
-  const sendMessage = (message: string) => {
+  /**
+   * Envía un mensaje a la API y obtiene la respuesta del chatbot.
+   */
+  const sendMessage = async (message: string) => {
     setHasSentMessage(true);
-    const newMessage = { text: message, sender: "user" as "user" };
+
+    // ✅ Mensaje del usuario con tipado correcto
+    const newMessage: { text: string; sender: "user" | "bot" } = {
+      text: message,
+      sender: "user",
+    };
     setMessages((prevMessages) => [...prevMessages, newMessage]);
 
-    setTimeout(() => {
-      const botResponse = { text: "Esta es una respuesta automática del bot.", sender: "bot" as "bot" };
+    try {
+      // ✅ Enviar mensaje a la API
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_id: "12345", text: message }), // Cambia `user_id` según tu lógica
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al obtener la respuesta del chatbot");
+      }
+
+      // ✅ Obtener la respuesta del chatbot
+      const data = await response.json();
+      const botResponse: { text: string; sender: "user" | "bot" } = {
+        text: data.text,
+        sender: "bot",
+      };
+
+      // ✅ Agregar la respuesta del chatbot al estado
       setMessages((prevMessages) => [...prevMessages, botResponse]);
 
+      // ✅ Actualizar la conversación en el chat seleccionado
       setChats((prevChats) =>
         prevChats.map((chat) => {
           if (chat.id === selectedChat) {
             const updatedMessages = [...chat.messages, newMessage, botResponse];
 
-            const newTitle = chat.title === "Nuevo Chat" ? generateChatTitle(message) : chat.title;
+            // Si el título aún es "Nuevo Chat", actualizarlo
+            const newTitle =
+              chat.title === "Nuevo Chat" ? generateChatTitle(message) : chat.title;
 
             return { ...chat, title: newTitle, messages: updatedMessages };
           }
           return chat;
         })
       );
-    }, 1000);
+    } catch (error) {
+      console.error("Error al comunicarse con la API:", error);
+      const botErrorResponse: { text: string; sender: "user" | "bot" } = {
+        text: "Lo siento, no pude procesar tu solicitud.",
+        sender: "bot",
+      };
+      setMessages((prevMessages) => [...prevMessages, botErrorResponse]);
+    }
   };
 
   return (
@@ -78,13 +122,15 @@ const Chat: React.FC = () => {
         transition={{ duration: 0.4 }}
         className="flex flex-col h-screen w-full"
       >
+        {/* ✅ Encabezado */}
         <Header />
 
         <div className="flex flex-1 w-full bg-primary">
+          {/* ✅ Sidebar con lista de chats */}
           <ChatSidebar chats={chats} selectedChat={selectedChat} onSelectChat={handleSelectChat} onNewChat={handleNewChat} />
 
           <div className="flex flex-col flex-1 h-full">
-            {/* ✅ Preguntas rápidas centradas y en cuadrícula de 2x2 */}
+            {/* ✅ Preguntas rápidas antes de enviar mensajes */}
             {!hasSentMessage && (
               <div className="flex flex-1 items-center justify-center">
                 <motion.div 
@@ -107,15 +153,16 @@ const Chat: React.FC = () => {
               </div>
             )}
 
-            {/* Área de mensajes con desplazamiento */}
+            {/* ✅ Área de mensajes con desplazamiento */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[calc(100vh-160px)]">
               <ChatMessages messages={messages} />
             </div>
 
-            {/* Input de texto */}
+            {/* ✅ Input de texto para enviar mensajes */}
             <div className="border-t bg-white p-4 sticky bottom-0 w-full">
               <ChatInput sendMessage={sendMessage} />
             </div>
+
           </div>
         </div>
       </motion.div>

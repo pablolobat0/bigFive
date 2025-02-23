@@ -3,6 +3,7 @@ import { motion } from "framer-motion"; // Importamos Framer Motion
 import register from "../assets/register.png";
 import chatbot from "../assets/chatbot.png";
 import coach from "../assets/coach.png";
+import { Link } from "react-router-dom";
 
 const Pasos: React.FC = () => {
   return (
@@ -28,9 +29,11 @@ const Pasos: React.FC = () => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <button className="bg-white border border-secondary text-secondary px-6 py-4 rounded-lg ">
+              <Link to="/register">
+                <button className="bg-white border border-secondary text-secondary px-6 py-4 rounded-lg">
                   Registrarse
                 </button>
+              </Link>
               </motion.div>
               <img
                 src={register}
@@ -53,9 +56,12 @@ const Pasos: React.FC = () => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
               >
+                
+              <Link to="/chat">
                 <button className="bg-white border border-secondary text-secondary px-6 py-4 rounded-lg">
                   Hablar
                 </button>
+              </Link>
               </motion.div>
               <img src={chatbot} alt="Chatbot" className="w-36 h-36 self-end" />
             </div>
@@ -74,9 +80,11 @@ const Pasos: React.FC = () => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
               >
+              <Link to="/coach">
                 <button className="bg-white border border-secondary text-secondary px-6 py-4 rounded-lg">
-                  Coach
+                    Coach
                 </button>
+              </Link>
               </motion.div>
               <img src={coach} alt="Coach" className="w-36 h-36 self-end" />
             </div>
