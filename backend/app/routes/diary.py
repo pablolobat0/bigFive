@@ -1,30 +1,24 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from typing import List
+from app.db.crud.user import update_user_emotions
 from app.models.diary import DiaryEntry
-from app.models.user import user_example
 from app.db.utils import get_database
 from app.db.crud.diary import (
-    get_all_diary_entries,
+    get_all_diary_entries_by_user_id,
     create_diary_entry,
     get_diary_entry_by_title,
     delete_diary_entry_by_title
 )
-from app.db.crud.user import  update_user_emotions
 from motor.motor_asyncio import AsyncIOMotorCollection
+from typing import List, Dict, Literal
+import json
+
+from app.services.chatbot import ChatbotService
 
 
 diary_router = APIRouter()
 
-# Simulación de almacenamiento en memoria para las entradas del diario
-diary_entries: List[DiaryEntry] = []
-
-def analyze_text(text: str) -> str:
-    """
-    Función simulada para analizar el texto de una entrada del diario.
-    """
-    return "neutral"
-
-
+chatbot_service = ChatbotService()
 
 @diary_router.post(
     '/diary',
@@ -37,8 +31,29 @@ async def create_entry(entry: DiaryEntry, db: AsyncIOMotorCollection = Depends(g
     Se verifica que no exista ya una entrada con el mismo título.
     """
     try:
+        # Verificar si ya existe una entrada con el mismo título
+        existing_entry = await db.diary.find_one({"user_id": entry.user_id, "titulo": entry.titulo})
+        if existing_entry:
+            raise ValueError("Ya existe una entrada con el mismo título.")
+
         # Crear la entrada en la base de datos
         created_entry = await create_diary_entry(db.diary, entry)
+
+        all_entries = await get_all_diary_entries_by_user_id(db.diary, entry.user_id)
+
+        all_text = " ".join([entry["entrada"] for entry in all_entries])
+        all_messages: List[Dict[Literal["role", "content"], str]] = [
+            {"role": "user", "content": all_text}] 
+
+        json_string = chatbot_service.get_personality_scores(all_messages)
+        if not json_string:
+            raise ValueError("Error en la respuesta del llm")
+
+        personality_scores = json.loads(json_string)
+
+        await update_user_emotions(db.users, entry.user_id, personality_scores)
+
+
         return created_entry
     except ValueError as e:
         raise HTTPException(
@@ -51,11 +66,11 @@ async def create_entry(entry: DiaryEntry, db: AsyncIOMotorCollection = Depends(g
     response_model=List[DiaryEntry],
     status_code=status.HTTP_200_OK
 )
-async def get_all_entries(db: AsyncIOMotorCollection = Depends(get_database)):
+async def get_all_entries(user_id: str, db: AsyncIOMotorCollection = Depends(get_database)):
     """
     Devuelve todas las entradas del diario.
     """
-    entries = await get_all_diary_entries(db.diary)
+    entries = await get_all_diary_entries_by_user_id(db.diary, user_id)
     return entries
 
 @diary_router.get(
