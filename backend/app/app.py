@@ -2,6 +2,7 @@ from fastapi import APIRouter, FastAPI
 from app.routes.messages import message_router
 from app.routes.diary import diary_router
 from app.routes.user import user_router
+from app.routes.bigfive import bigfive_router
 from contextlib import asynccontextmanager
 from app.db.utils import get_mongo_client, close_client
 from fastapi.middleware.cors import CORSMiddleware
@@ -47,6 +48,7 @@ router = APIRouter()
 router.include_router(message_router)
 router.include_router(diary_router)
 router.include_router(user_router)
+router.include_router(bigfive_router)
 
 
 app.include_router(router)
