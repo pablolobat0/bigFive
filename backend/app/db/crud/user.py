@@ -47,7 +47,7 @@ async def login_user(collection: AsyncIOMotorCollection, user: UserLogin) -> dic
     access_token = create_access_token(data={"sub": user.email})
     return {"access_token": access_token, "token_type": "bearer"}
 
-async def get_user_by_id(collection: AsyncIOMotorCollection, user_id: str) -> Optional[dict]:
+async def get_user_by_id(collection: AsyncIOMotorCollection, user_id: str) -> Optional[UserCreate]:
     """
     Busca un usuario por su user_id.
     Devuelve el usuario si lo encuentra, de lo contrario devuelve None.

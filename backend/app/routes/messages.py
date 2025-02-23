@@ -1,12 +1,10 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status
 from typing import List
 from app.models.message import ChatMessage
 from typing import List, Dict, Literal
 from app.redis.users import get_user_conversation
 from app.redis.redis import redis_client
 from app.services.chatbot import ChatbotService
-from motor.motor_asyncio import AsyncIOMotorCollection
-from app.db.utils import get_database
 
 message_router = APIRouter()
 
