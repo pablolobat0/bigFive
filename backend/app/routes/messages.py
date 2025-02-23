@@ -7,10 +7,6 @@ from app.redis.redis import redis_client
 from app.services.chatbot import ChatbotService
 from motor.motor_asyncio import AsyncIOMotorCollection
 from app.db.utils import get_database
-from app.db.crud.message import (
-    get_all_messages,
-    get_message_by_id
-)
 
 message_router = APIRouter()
 

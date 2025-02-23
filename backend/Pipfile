@@ -14,14 +14,10 @@ pydantic = {extras = ["email"], version = "*"}
 passlib = "*" 
 bcrypt = "*"
 redis = "*"
-numpy = "*"
-transformers = "*"
-torch = "*"
-sentencepiece = "*"
 [dev-packages]
 
 [requires]
-python_version = "3.10"
+python_version = "3.13"
 
 [scripts]
 start = "uvicorn app.app:app --reload --host 0.0.0.0 --port 8000"

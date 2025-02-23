@@ -11,7 +11,6 @@ from app.db.crud.diary import (
 )
 from app.db.crud.user import  update_user_emotions
 from motor.motor_asyncio import AsyncIOMotorCollection
-from app.services.emotions.personalityUpdate import update_personality
 
 
 diary_router = APIRouter()
@@ -26,11 +25,6 @@ def analyze_text(text: str) -> str:
     return "neutral"
 
 
-def new_personality(text: str, user_emotions: dict ) -> dict:
-    """
-    Función simulada para actualizar los puntajes de personalidad.
-    """    
-    return update_personality(text,user_emotions)
 
 @diary_router.post(
     '/diary',
@@ -43,14 +37,6 @@ async def create_entry(entry: DiaryEntry, db: AsyncIOMotorCollection = Depends(g
     Se verifica que no exista ya una entrada con el mismo título.
     """
     try:
-        # Simular análisis del contenido de la entrada
-        #user = await get_user_by_id(db,entry.user_id)
-        user = user_example.model_dump()
-        if user and "emotions" in user:
-            new_emotions = new_personality(entry.entrada, user['emotions'])
-            update_success = await update_user_emotions(db, entry.user_id, new_emotions)
-            if update_success:
-                print("Emociones actualizadas correctamente.")
         # Crear la entrada en la base de datos
         created_entry = await create_diary_entry(db.diary, entry)
         return created_entry
