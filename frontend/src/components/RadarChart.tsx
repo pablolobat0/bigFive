@@ -21,17 +21,16 @@ ChartJS.register(
 
 const data = {
   labels: [
-    "Comunicación",
-    "Puntualidad",
-    "Resolución de problemas",
-    "Cumplimiento de plazos",
-    "Trabajo en equipo",
-    "Conocimiento técnico",
+    "Neuroticismo",
+    "Apertura a la experiencia",
+    "Responsabilidad",
+    "Extraversión",
+    "Amabilidad",
   ],
   datasets: [
     {
       label: "Perfil de Usuario",
-      data: [4, 3, 5, 3, 4, 5],
+      data: [1, 3, 2, 5, 2.5],
       backgroundColor: "rgba(136, 132, 216, 0.4)", // Color de fondo más suave
       borderColor: "#8884d8", // Color del borde
       borderWidth: 2, // Grosor del borde

@@ -17,10 +17,48 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onUpdateNote, onDeleteNot
     setContent(note.content);
   }, [note]);
 
-  const handleSave = () => {
-    const updatedNote = { ...note, title, content };
-    onUpdateNote(updatedNote);
+  const handleSave = async () => {
+    if (!note) return; // Evita errores si note es null
+  
+    const apiUrl = "http://localhost:8000/diary"; // Cambia la URL si es necesario
+  
+    const diaryEntry = {
+      user_id: "12345", // ⚠️ ID de usuario estático, cambiar por usuario real si es necesario
+      titulo: title, // Se toma del estado actual
+      entrada: content, // Se toma del estado actual
+    };
+  
+    try {
+      console.log("Enviando nota a la API...", diaryEntry);
+  
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(diaryEntry),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Error al guardar la nota: ${response.statusText}`);
+      }
+  
+      const savedNote = await response.json();
+      console.log("Nota guardada con éxito:", savedNote);
+  
+      // ✅ Actualiza la nota en el frontend con la respuesta de la API
+      const updatedNote = {
+        id: note.id,
+        title: savedNote.titulo,
+        content: savedNote.entrada,
+      };
+  
+      onUpdateNote(updatedNote); // Llama la función para actualizar el estado en el frontend
+    } catch (error) {
+      console.error("Error al guardar la nota:", error);
+    }
   };
+  
 
   return (
     <div className="flex-1 flex flex-col ml-8">

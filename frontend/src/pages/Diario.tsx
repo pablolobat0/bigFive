@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import NoteList from "../components/NoteList";
@@ -6,34 +6,87 @@ import NoteEditor from "../components/NoteEditor";
 import { motion } from "framer-motion";
 
 const DiarioPage: React.FC = () => {
-  const [notes, setNotes] = useState([
-    { id: 1, title: "Nueva Nota", date: "22/02/2025", content: "Hola, hoy me encuentro un poco mal" },
-    { id: 2, title: "Tristeza", date: "20/02/2025", content: "Hoy tuve un día difícil..." },
-    { id: 3, title: "Hoy Bien", date: "17/02/2025", content: "Me sentí feliz porque..." },
-    { id: 4, title: "Me habló", date: "11/02/2025", content: "Recibí un mensaje inesperado" },
-    { id: 5, title: "Un poco raro", date: "05/02/2025", content: "Sentí algo diferente hoy" },
-  ]);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const apiUrl = "http://localhost:8000/diary"; // URL de la API
 
-  const [selectedNote, setSelectedNote] = useState(notes[0]);
-  const [isSaving, setIsSaving] = useState(false); // Estado para manejar el guardado
+  interface Note {
+    id: number;
+    title: string;
+    content: string;
+  }
 
-  const handleSelectNote = (note: any) => {
+  /**
+   * ✅ Carga las notas desde la API al iniciar la página.
+   */
+  useEffect(() => {
+    fetch(apiUrl)
+      .then((response) => response.json())
+      .then((data) => {
+        if (!Array.isArray(data)) {
+          console.error("La API no devolvió un array:", data);
+          return;
+        }
+
+        const formattedNotes = data.map((note: any) => ({
+          id: Number(note.id) || Date.now(), // ✅ Asegura que el ID sea un número
+          title: String(note.titulo) || "Sin título",
+          content: String(note.entrada) || "",
+        }));
+
+        setNotes(formattedNotes);
+        setSelectedNote(formattedNotes.length > 0 ? formattedNotes[0] : null);
+      })
+      .catch((error) => console.error("Error al obtener notas:", error));
+  }, []);
+
+  const handleSelectNote = (note: Note) => {
     setSelectedNote(note);
   };
 
-  const handleUpdateNote = async (updatedNote: any) => {
+  /**
+   * ✅ Guardar la nota en la API y actualizar el estado
+   */
+  const handleUpdateNote = async (updatedNote: { id: number; title: string; content: string }) => {
     setIsSaving(true); // Indicar que se está guardando
 
-    // Simulación de una llamada a una API REST
-    try {
-      console.log("Guardando nota en la API...", updatedNote);
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simular un retraso de 1 segundo
+    const diaryEntry = {
+      user_id: "12345", // ⚠️ Cambia esto por el ID del usuario real
+      titulo: updatedNote.title,
+      entrada: updatedNote.content,
+    };
 
-      // Actualizar el estado local de las notas
+    try {
+      console.log("Guardando nota en la API...", diaryEntry);
+
+      const response = await fetch(apiUrl, {
+        method: "POST", // Cambia a "PUT" si necesitas actualizar en lugar de crear
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(diaryEntry),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error al guardar la nota: ${response.statusText}`);
+      }
+
+      const savedNote = await response.json();
+      console.log("Nota guardada con éxito:", savedNote);
+
+      // ✅ Convertir ID a número
+      const updatedNoteWithId: Note = {
+        id: Number(updatedNote.id),
+        title: updatedNote.title,
+        content: updatedNote.content,
+      };
+
+      // ✅ Actualizar el estado local con la respuesta de la API
       setNotes((prevNotes) =>
-        prevNotes.map((note) => (note.id === updatedNote.id ? updatedNote : note))
+        prevNotes.map((note) => (note.id === updatedNoteWithId.id ? updatedNoteWithId : note))
       );
-      setSelectedNote(updatedNote);
+      setSelectedNote(updatedNoteWithId);
     } catch (error) {
       console.error("Error al guardar la nota:", error);
     } finally {
@@ -43,22 +96,22 @@ const DiarioPage: React.FC = () => {
 
   const handleNewNote = () => {
     const newNote = {
-      id: notes.length + 1,
+      id: Date.now(), // Usamos Date.now() para evitar IDs duplicados
       title: "Nueva Nota",
-      date: new Date().toLocaleDateString(),
       content: "",
     };
-    setNotes([newNote, ...notes]);
+
+    setNotes((prevNotes) => [newNote, ...prevNotes]);
     setSelectedNote(newNote);
   };
 
   const handleDeleteNote = (noteId: number) => {
     setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId));
 
-    // Si la nota eliminada es la actual, seleccionamos otra o dejamos vacío
-    if (selectedNote.id === noteId) {
-      setSelectedNote(notes.length > 1 ? notes[0] : { id: 0, title: "", date: "", content: "" });
-    }
+    // ✅ Si no hay más notas, dejamos selectedNote en null
+    setSelectedNote((prevSelected) =>
+      prevSelected && prevSelected.id === noteId ? null : prevSelected
+    );
   };
 
   return (
@@ -77,12 +130,15 @@ const DiarioPage: React.FC = () => {
             onSelectNote={handleSelectNote}
             onNewNote={handleNewNote}
           />
-          <NoteEditor
-            note={selectedNote}
-            onUpdateNote={handleUpdateNote}
-            onDeleteNote={handleDeleteNote}
-            isSaving={isSaving}
-          />
+          {/* ✅ Solo renderiza el editor si hay una nota seleccionada */}
+          {selectedNote && (
+            <NoteEditor
+              note={selectedNote}
+              onUpdateNote={handleUpdateNote}
+              onDeleteNote={handleDeleteNote}
+              isSaving={isSaving}
+            />
+          )}
         </motion.div>
       </div>
       <Footer />

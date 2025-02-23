@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 interface Note {
   id: number;
   title: string;
-  date: string;
   content: string;
 }
 
@@ -16,11 +15,6 @@ interface NoteListProps {
 }
 
 const NoteList: React.FC<NoteListProps> = ({ notes, selectedNote, onSelectNote, onNewNote }) => {
-  // ✅ Función para obtener la fecha actual en formato DD/MM/YYYY
-  const getCurrentDate = () => {
-    const today = new Date();
-    return today.toLocaleDateString("es-ES"); // Formato español (ejemplo: 22/02/2025)
-  };
 
   return (
     <aside className="w-1/3 bg-sidebar p-4 flex flex-col">
@@ -55,7 +49,6 @@ const NoteList: React.FC<NoteListProps> = ({ notes, selectedNote, onSelectNote, 
               onClick={() => onSelectNote(note)}
             >
               <h3 className="font-bold truncate">{note.title}</h3>
-              <p className="text-sm">{note.date || getCurrentDate()}</p>
             </motion.button>
           ))}
         </AnimatePresence>

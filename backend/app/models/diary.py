@@ -6,6 +6,5 @@ class DiaryEntry(BaseModel):
     user_id: str
     titulo: str
     entrada: str
-    fecha: datetime
 
 
