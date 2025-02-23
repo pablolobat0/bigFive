@@ -12,6 +12,7 @@ from app.db.crud.diary import (
 from motor.motor_asyncio import AsyncIOMotorCollection
 from typing import List, Dict, Literal
 import json
+import re
 
 from app.services.chatbot import ChatbotService
 
@@ -45,14 +46,34 @@ async def create_entry(entry: DiaryEntry, db: AsyncIOMotorCollection = Depends(g
         all_messages: List[Dict[Literal["role", "content"], str]] = [
             {"role": "user", "content": all_text}] 
 
-        json_string = chatbot_service.get_personality_scores(all_messages)
-        if not json_string:
-            raise ValueError("Error en la respuesta del llm")
+        response = chatbot_service.get_personality_scores(all_messages)
+        if not response:
+            raise ValueError("Error en la respuesta del LLM: Respuesta vacía o inválida")
+        # Si la respuesta es un diccionario, úsalo directamente
+        if isinstance(response, dict):
+            personality_scores = response
+        # Si la respuesta es un string JSON, conviértelo a diccionario
+        elif isinstance(response, str):
+            # Expresión regular para extraer el JSON
+            json_pattern = re.compile(r'\{.*?"openness":\s*\d+(\.\d+)?.*?"conscientiousness":\s*\d+(\.\d+)?.*?"extraversion":\s*\d+(\.\d+)?.*?"agreeableness":\s*\d+(\.\d+)?.*?"neuroticism":\s*\d+(\.\d+)?.*?\}')
 
-        personality_scores = json.loads(json_string)
+            # Buscar el JSON en la respuesta del LLM
+            match = json_pattern.search(response)
+            if not match:
+                raise ValueError("No se encontró un JSON válido en la respuesta del LLM")
+
+            # Extraer el JSON
+            json_content = match.group(0)
+
+            # Parsear el JSON
+            try:
+                personality_scores = json.loads(json_content)
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Error al parsear el JSON: {e}")
+        else:
+            raise ValueError("Tipo de respuesta no válido del LLM")
 
         await update_user_emotions(db.users, entry.user_id, personality_scores)
-
 
         return created_entry
     except ValueError as e:

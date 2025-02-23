@@ -51,7 +51,7 @@ class ChatbotService:
                 "Analiza los mensajes del usuario y devuelve un JSON con las puntuaciones de los cinco rasgos de personalidad: "
                 "Apertura (Openness), Responsabilidad (Conscientiousness), Extraversión (Extraversion), Amabilidad (Agreeableness) y Neuroticismo (Neuroticism). "
                 "Las puntuaciones deben estar en una escala del 1 al 5, donde 1 es el mínimo y 5 es el máximo. "
-                "El formato del JSON debe ser: "
+                "Quiero que solo respondas con el JSON. El formato del JSON debe ser: "
                 '{"openness": puntuacion, "conscientiousness": puntuacion, "extraversion": puntuacion, "agreeableness": puntuacion, "neuroticism": puntuacion}.'
             )
         }
