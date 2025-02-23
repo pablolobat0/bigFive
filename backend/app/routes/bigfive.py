@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from typing import List
-from app.db.crud.user import get_user_by_id 
+from app.db.crud.user import get_user_by_id
 from app.db.utils import get_database
 from app.db.crud.diary import (
     get_all_diary_entries_by_user_id,
@@ -8,7 +8,7 @@ from app.db.crud.diary import (
 from motor.motor_asyncio import AsyncIOMotorCollection
 from typing import List, Dict, Literal
 
-from app.models.user import Emotions
+from app.models.user import Emotions,user_example
 from app.services.chatbot import ChatbotService
 
 
@@ -26,8 +26,8 @@ async def get_bigfive(user_id: str, db: AsyncIOMotorCollection = Depends(get_dat
     Devuelve la calificación en la escala BigFive de la personalidad del usuario
     """
     try:
-        user = await get_user_by_id(db.users, user_id)
-
+        #user = await get_user_by_id(db.users, user_id)
+        user = user_example
         if not user:
             raise ValueError("El usuario no existe")
 
