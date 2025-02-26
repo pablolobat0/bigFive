@@ -6,7 +6,7 @@ Bienvenido al proyecto **BigFive**. Esta aplicación web integra un chatbot emoc
 
 ## 🛠 Tecnologías
 
-- **Frontend:** React
+- **Frontend:** React, Vite y TailwindCSS
 - **Backend:** FastAPI
 - **Base de datos:** MongoDB y Redis
 - **Modelo de IA:** Deepseek R1 1776
