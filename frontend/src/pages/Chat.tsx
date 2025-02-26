@@ -4,6 +4,8 @@ import ChatMessages from "../components/ChatMessages";
 import ChatInput from "../components/ChatInput";
 import Header from "../components/Header";
 import { motion } from "framer-motion";
+import { Menu, X } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
 
 const API_URL = "http://localhost:8000/messages"; // Reemplaza con la URL de tu API
 
@@ -25,6 +27,11 @@ const Chat: React.FC = () => {
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [messages, setMessages] = useState<{ text: string; sender: "user" | "bot" }[]>([]);
   const [hasSentMessage, setHasSentMessage] = useState(false);
+  const [sidebarVisible, setSidebarVisible] = useState(true); 
+
+  const toggleSidebar = () => {
+    setSidebarVisible(!sidebarVisible);
+  };
 
   const handleNewChat = () => {
     const newChat: Chat = {
@@ -62,7 +69,24 @@ const Chat: React.FC = () => {
       text: message,
       sender: "user",
     };
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+    let chatId = selectedChat;
+
+    // ✅ Si no hay chat seleccionado, creamos uno automáticamente
+    if (!chatId) {
+      const newChat: Chat = {
+        id: String(Date.now()),
+        title: generateChatTitle(message),
+        messages: [newMessage], // Iniciamos con el primer mensaje
+      };
+  
+      setChats((prevChats) => [newChat, ...prevChats]);
+      setSelectedChat(newChat.id);
+      setMessages([newMessage]); // ✅ Reiniciamos los mensajes en pantalla
+      chatId = newChat.id;
+    } else {
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    }
 
     try {
       // ✅ Enviar mensaje a la API
@@ -103,6 +127,7 @@ const Chat: React.FC = () => {
           return chat;
         })
       );
+    // Si se produce un error ponemos un mensaje de error en el chat
     } catch (error) {
       console.error("Error al comunicarse con la API:", error);
       const botErrorResponse: { text: string; sender: "user" | "bot" } = {
@@ -110,6 +135,21 @@ const Chat: React.FC = () => {
         sender: "bot",
       };
       setMessages((prevMessages) => [...prevMessages, botErrorResponse]);
+
+      // ✅ Guardar el chat aunque haya error
+      setChats((prevChats) =>
+        prevChats.map((chat) => {
+          if (chat.id === chatId) {
+            const updatedMessages = [...chat.messages, newMessage, botErrorResponse];
+
+            const newTitle =
+              chat.title === "Nuevo Chat" ? generateChatTitle(message) : chat.title;
+
+            return { ...chat, title: newTitle, messages: updatedMessages };
+          }
+          return chat;
+        })
+      );
     }
   };
 
@@ -126,8 +166,34 @@ const Chat: React.FC = () => {
         <Header />
 
         <div className="flex flex-1 w-full bg-primary">
+
+           {/* ✅ Botón para mostrar/ocultar el Sidebar */}
+           {!sidebarVisible && (
+              <motion.button 
+                initial={{ opacity: 0, x: -30 }} // 🔹 Comienza oculto y más a la izquierda
+                animate={{ opacity: 1, x: 0 }} // 🔹 Se desliza hacia su posición normal
+                exit={{ opacity: 0, x: -30 }} // 🔹 Se desliza de nuevo hacia la izquierda al desaparecer
+                transition={{ duration: 0.3, ease: "easeOut" }} // 🔹 Suave animación
+                className="absolute top-20 left-5 bg-secondary text-white p-2 rounded-lg z-50"
+                onClick={toggleSidebar}
+              >
+                <Menu size={24} />
+              </motion.button>
+            )}
+
           {/* ✅ Sidebar con lista de chats */}
-          <ChatSidebar chats={chats} selectedChat={selectedChat} onSelectChat={handleSelectChat} onNewChat={handleNewChat} />
+            <AnimatePresence>
+              {sidebarVisible && (
+                <ChatSidebar 
+                  chats={chats} 
+                  selectedChat={selectedChat} 
+                  onSelectChat={handleSelectChat} 
+                  onNewChat={handleNewChat} 
+                  toggleSidebar={toggleSidebar}
+                />
+              )}
+            </AnimatePresence>
+
 
           <div className="flex flex-col flex-1 h-full">
             {/* ✅ Preguntas rápidas antes de enviar mensajes */}
@@ -159,9 +225,12 @@ const Chat: React.FC = () => {
             </div>
 
             {/* ✅ Input de texto para enviar mensajes */}
-            <div className="border-t bg-white p-4 sticky bottom-0 w-full">
-              <ChatInput sendMessage={sendMessage} />
+            <div className="border-t bg-white p-4 sticky bottom-0 w-full flex items-center justify-center">
+              <div className="w-full max-w-5xl">
+                <ChatInput sendMessage={sendMessage} />
+              </div>
             </div>
+
 
           </div>
         </div>
