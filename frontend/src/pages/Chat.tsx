@@ -62,7 +62,24 @@ const Chat: React.FC = () => {
       text: message,
       sender: "user",
     };
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+    let chatId = selectedChat;
+
+    // ✅ Si no hay chat seleccionado, creamos uno automáticamente
+    if (!chatId) {
+      const newChat: Chat = {
+        id: String(Date.now()),
+        title: generateChatTitle(message),
+        messages: [newMessage], // Iniciamos con el primer mensaje
+      };
+  
+      setChats((prevChats) => [newChat, ...prevChats]);
+      setSelectedChat(newChat.id);
+      setMessages([newMessage]); // ✅ Reiniciamos los mensajes en pantalla
+      chatId = newChat.id;
+    } else {
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    }
 
     try {
       // ✅ Enviar mensaje a la API
@@ -103,6 +120,7 @@ const Chat: React.FC = () => {
           return chat;
         })
       );
+    // Si se produce un error ponemos un mensaje de error en el chat
     } catch (error) {
       console.error("Error al comunicarse con la API:", error);
       const botErrorResponse: { text: string; sender: "user" | "bot" } = {
@@ -110,6 +128,21 @@ const Chat: React.FC = () => {
         sender: "bot",
       };
       setMessages((prevMessages) => [...prevMessages, botErrorResponse]);
+
+      // ✅ Guardar el chat aunque haya error
+      setChats((prevChats) =>
+        prevChats.map((chat) => {
+          if (chat.id === chatId) {
+            const updatedMessages = [...chat.messages, newMessage, botErrorResponse];
+
+            const newTitle =
+              chat.title === "Nuevo Chat" ? generateChatTitle(message) : chat.title;
+
+            return { ...chat, title: newTitle, messages: updatedMessages };
+          }
+          return chat;
+        })
+      );
     }
   };
 
