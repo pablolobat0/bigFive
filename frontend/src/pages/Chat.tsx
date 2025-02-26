@@ -225,9 +225,12 @@ const Chat: React.FC = () => {
             </div>
 
             {/* ✅ Input de texto para enviar mensajes */}
-            <div className="border-t bg-white p-4 sticky bottom-0 w-full items-center justify-center">
-              <ChatInput sendMessage={sendMessage} />
+            <div className="border-t bg-white p-4 sticky bottom-0 w-full flex items-center justify-center">
+              <div className="w-full max-w-5xl">
+                <ChatInput sendMessage={sendMessage} />
+              </div>
             </div>
+
 
           </div>
         </div>
