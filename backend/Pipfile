@@ -3,6 +3,11 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
+[[source]]
+url = "https://download.pytorch.org/whl/cpu"
+verify_ssl = true
+name = "pytorch-cpu"
+
 [packages]
 fastapi = "*"
 uvicorn = "*"
@@ -10,10 +15,11 @@ openai = "*"
 python-dotenv = "*"
 motor = "*"
 pyjwt = "*"
-pydantic = {extras = ["email"], version = "*"}
+pydantic = { extras = ["email"], version = "*" }
 passlib = "*" 
 bcrypt = "*"
 redis = "*"
+torch = { version = "*", index = "pytorch-cpu" }
 
 [dev-packages]
 
