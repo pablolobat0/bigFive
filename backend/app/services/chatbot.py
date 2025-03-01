@@ -4,12 +4,79 @@ import os
 import json
 from typing import List, Dict, Optional, Literal
 
+from app.services.emotions.personalityUpdate import max_emotion
+
 # Cargar variables de entorno desde el archivo .env
 load_dotenv()
 
 # Configuración de la API 
 API_KEY = os.getenv("PERPLEXITY_API_KEY")
 API_URL ="https://api.perplexity.ai" 
+
+def get_emotional_context(emotion: str) -> str:
+    """
+    Devuelve un texto de contexto según la emoción dominante.
+    """
+    emotion = emotion.lower()
+    if emotion == "admiration":
+        return "El usuario siente admiración, lo cual puede reflejar aprecio o inspiración. Responde reconociendo su admiración y alentándolo a seguir valorando aquello que le inspira."
+    elif emotion == "amusement":
+        return "El usuario se siente divertido y animado, lo que indica que está disfrutando el momento. Responde con un tono ligero y alegre."
+    elif emotion == "anger":
+        return "El usuario muestra enojo, por lo que es importante responder de forma calmada y empática."
+    elif emotion == "annoyance":
+        return "El usuario se siente molesto o irritado. Responde reconociendo su frustración y ofreciendo comprensión y posibles soluciones."
+    elif emotion == "approval":
+        return "El usuario aprueba o valida una idea, lo cual indica un sentimiento positivo. Refuerza su punto de vista de forma alentadora."
+    elif emotion == "caring":
+        return "El usuario demuestra cuidado y empatía. Responde de manera cálida y comprensiva, reconociendo su actitud."
+    elif emotion == "confusion":
+        return "El usuario se siente confundido. Ayuda a clarificar la información y ofrécele una guía clara para comprender mejor la situación."
+    elif emotion == "curiosity":
+        return "El usuario muestra curiosidad y deseo de aprender. Proporciona información estimulante y responde de forma que despierte su interés."
+    elif emotion == "desire":
+        return "El usuario expresa un fuerte deseo o anhelo. Responde alentándolo a perseguir sus metas y validando sus aspiraciones."
+    elif emotion == "disappointment":
+        return "El usuario se siente decepcionado. Responde con empatía, ofreciendo consuelo y, si es posible, alternativas o esperanzas renovadas."
+    elif emotion == "disapproval":
+        return "El usuario muestra desaprobación. Reconoce sus sentimientos y ofrece una perspectiva equilibrada para abordar sus inquietudes."
+    elif emotion == "disgust":
+        return "El usuario presenta disgusto; mantén un tono neutral y comprensivo para abordar su rechazo."
+    elif emotion == "embarrassment":
+        return "El usuario se siente avergonzado. Responde de forma sensible y apoyadora para ayudarle a recuperar su confianza."
+    elif emotion == "excitement":
+        return "El usuario está emocionado. Responde con entusiasmo, celebrando sus sentimientos positivos y motivándolo a seguir adelante."
+    elif emotion == "fear":
+        return "El usuario tiene miedo; ofrécele palabras de aliento y seguridad, y ayúdalo a sentirse protegido."
+    elif emotion == "gratitude":
+        return "El usuario se siente agradecido. Reconoce su gratitud y fomenta un ambiente positivo y de reconocimiento mutuo."
+    elif emotion == "grief":
+        return "El usuario muestra signos de duelo o tristeza profunda. Responde con extrema sensibilidad y apoyo para acompañarlo en su dolor."
+    elif emotion == "joy":
+        return "El usuario se muestra alegre. Responde de manera entusiasta y motivadora, compartiendo su optimismo."
+    elif emotion == "love":
+        return "El usuario expresa amor. Responde de manera cálida y afectuosa, reconociendo y valorando ese sentimiento."
+    elif emotion == "nervousness":
+        return "El usuario se siente nervioso. Ofrece palabras de aliento y estrategias para calmar su ansiedad."
+    elif emotion == "optimism":
+        return "El usuario es optimista. Refuerza su perspectiva positiva y motívalo a continuar con esa actitud constructiva."
+    elif emotion == "pride":
+        return "El usuario se siente orgulloso. Reconoce su logro y fomenta ese sentimiento de autoafirmación y confianza."
+    elif emotion == "realization":
+        return "El usuario ha tenido una importante realización. Anímalo a profundizar en esa nueva perspectiva y a aprovecharla para su crecimiento personal."
+    elif emotion == "relief":
+        return "El usuario experimenta alivio. Reconoce su sensación de mejora y estabilidad, y anímalo a mantener ese estado."
+    elif emotion == "remorse":
+        return "El usuario siente remordimiento. Responde con empatía, ayudándolo a aprender de la situación y a encontrar el camino hacia el perdón personal."
+    elif emotion == "sadness":
+        return "El usuario se siente triste y necesita consuelo y apoyo emocional. Responde con empatía y ofreciéndole palabras de aliento."
+    elif emotion == "surprise":
+        return "El usuario se siente sorprendido; ayuda a procesar su sorpresa de manera clara y brinda contexto para comprender la situación."
+    elif emotion == "neutral":
+        return "El usuario se encuentra en un estado neutral. Responde de manera equilibrada y objetiva, sin un sesgo emocional marcado."
+    else:
+        return "El usuario presenta una emoción compleja; responde con empatía y comprensión, considerando que puede tener matices variados."
+
 
 class ChatbotService:
     def __init__(self):
@@ -22,6 +89,9 @@ class ChatbotService:
         :param messages: Lista de mensajes en formato de diccionario con claves "role" y "content".
         :return: Respuesta generada o None si hay un error.
         """
+        # Generar texto de contexto a partir de la emoción dominante
+        emotional_context = get_emotional_context(max_emotion(messages[-1]["content"]))
+
         # Agregar un prompt inicial de sistema para definir el comportamiento del chatbot
         system_prompt = {
             "role": "system",
@@ -30,7 +100,8 @@ class ChatbotService:
                 "Tu objetivo es escuchar activamente a los usuarios, ofrecer respuestas empáticas y ayudarles a reflexionar sobre sus emociones y situaciones. "
                 "Habla de manera cálida y profesional, y evita dar diagnósticos médicos o tratamientos. "
                 "Ofrece herramientas de afrontamiento, preguntas reflexivas y sugerencias generales para mejorar el bienestar emocional. "
-                "Recuerda: tu rol es escuchar y guiar, no juzgar."
+                "Recuerda: tu rol es escuchar y guiar, no juzgar.\n\n"
+                f"Información adicional: {emotional_context}"
             )
         }
 
