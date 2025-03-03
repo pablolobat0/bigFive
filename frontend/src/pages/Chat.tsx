@@ -4,7 +4,7 @@ import ChatMessages from "../components/ChatMessages";
 import ChatInput from "../components/ChatInput";
 import Header from "../components/Header";
 import { motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 
 const API_URL = "http://localhost:8000/messages"; // Reemplaza con la URL de tu API

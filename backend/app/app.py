@@ -4,8 +4,9 @@ from app.routes.diary import diary_router
 from app.routes.user import user_router
 from app.routes.bigfive import bigfive_router
 from contextlib import asynccontextmanager
-from app.db.utils import get_mongo_client, close_client
+from app.db.utils import get_mongo_client, close_client, get_database
 from fastapi.middleware.cors import CORSMiddleware
+from app.db.crud.user import create_default_user
 
 
 from fastapi import FastAPI
@@ -23,6 +24,10 @@ async def lifespan(app: FastAPI):
     # Crear conexión a MongoDB
     await get_mongo_client()
     print("✅ Conexión a MongoDB establecida.")
+
+    db = await get_database()
+    await create_default_user(db.users)  # Crea el usuario predeterminado si no existe
+
 
     yield  # Permite que la aplicación se ejecute
 

@@ -8,6 +8,31 @@ from typing import Optional, Dict, Any
 # Configuración de hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+async def create_default_user(collection: AsyncIOMotorCollection):
+    """Crea un usuario predeterminado si no existe."""
+    user_id = "12345"
+    existing_user = await collection.find_one({"user_id": user_id})
+    
+    if existing_user:
+        print(f"Usuario predeterminado {user_id} ya existe.")
+        return
+
+    user_data = {
+        "user_id": user_id,
+        "email": "user@example.com",
+        "password_hash": pwd_context.hash("securepassword123"),  # Contraseña hasheada
+        "name": "John Doe",
+        "emotions": {
+            "neuroticism": 12,
+            "extraversion": 25,
+            "openness": 30,
+            "agreeableness": 20,
+            "conscientiousness": 35
+        }
+    }
+    await collection.insert_one(user_data)
+    print(f"Usuario predeterminado {user_id} creado.")
+
 async def create_user(collection: AsyncIOMotorCollection, user: UserCreate):
     """
     Crea un usuario
@@ -76,6 +101,8 @@ async def update_user_emotions(collection: AsyncIOMotorCollection, user_id: str,
         {"user_id": user_id},  # Filtro para encontrar el usuario
         {"$set": {"emotions": new_emotions}}  # Nuevo valor para el campo emotions
     )
+    user = await collection.find_one({})
+    print("USUARIO ENCONTRADO:", user)
 
     # Verificar si se actualizó correctamente
     if result.matched_count > 0:
