@@ -90,8 +90,7 @@ class ChatbotService:
         :return: Respuesta generada o None si hay un error.
         """
         # Generar texto de contexto a partir de la emoción dominante
-        emotional_context = get_emotional_context(max_emotion(messages[-1]["content"]))
-
+        emotional_context = get_emotional_context(max_emotion(messages[-1]["content"], "es"))
         # Agregar un prompt inicial de sistema para definir el comportamiento del chatbot
         system_prompt = {
             "role": "system",
@@ -134,6 +133,7 @@ class ChatbotService:
             raise ValueError("Error del mensaje")
 
         # Intentar parsear la respuesta como JSON
+        print(response)
         try:
             personality_scores = json.loads(response)
             return personality_scores

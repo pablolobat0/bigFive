@@ -6,7 +6,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 model_name = "SamLowe/roberta-base-go_emotions"
 
 # Tokenizer and model
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name, timeout = 60)
 model = AutoModelForSequenceClassification.from_pretrained(model_name)
 
 

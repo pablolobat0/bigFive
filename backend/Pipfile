@@ -20,11 +20,14 @@ passlib = "*"
 bcrypt = "*"
 redis = "*"
 torch = { version = "*", index = "pytorch-cpu" }
+transformers = {version = "*", install_flags = "--no-deps"}
+sentencepiece = {version = "*", install_flags = "--no-deps"}
+sacremoses = {version = "*", install_flags = "--no-deps"}
 
 [dev-packages]
 
 [requires]
-python_version = "3.13"
+python_version = "3.10"
 
 [scripts]
 start = "uvicorn app.app:app --reload --host 0.0.0.0 --port 8000"
