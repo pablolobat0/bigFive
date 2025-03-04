@@ -24,14 +24,14 @@ async def process_message(
     """
     try:
         # Almacenar el mensaje en Redis
-        redis_key = f"chat:{message.user_id}"
+        redis_key = f"chat:{user.id}"
         redis_client.rpush(
             redis_key, message.text
         )  # Agrega el mensaje a la lista de Redis
 
         # Se carga toda la conversacion anterior y el mensaje actual
         conversation_history: List[Dict[Literal["role", "content"], str]] = (
-            get_user_conversation(message.user_id)
+            get_user_conversation(user.id)
         )
 
         # Obtener la respuesta del chatbot
@@ -47,6 +47,6 @@ async def process_message(
         redis_client.rpush(redis_key, chatbot_response)
 
         # Devolver la respuesta con el resultado del análisis
-        return ChatMessage(user_id=message.user_id, text=chatbot_response)
+        return ChatMessage(text=chatbot_response)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

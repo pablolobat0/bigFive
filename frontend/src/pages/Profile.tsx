@@ -29,15 +29,18 @@ const Profile = () => {
                 return;
             }
             try {
-                const user_id = "12345"; // Reemplaza con el ID del usuario actual
-                const response = await fetch(`http://localhost:8000/bigfive?user_id=${user_id}`);
+                const response = await fetch("http://localhost:8000/bigfive", {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                });
                 if (!response.ok) {
                     throw new Error('Error al obtener las emociones');
                 }
                 const data = await response.json();
                 setEmotions(data);
             } catch (error) {
-                // Verificar si el error es una instancia de Error
                 if (error instanceof Error) {
                     setError(error.message);
                 } else {

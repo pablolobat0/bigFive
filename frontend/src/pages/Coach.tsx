@@ -37,10 +37,13 @@ const Coach = () => {
             }
 
             try {
-                const user_id = "12345"; // Reemplaza con el ID del usuario actual
-
                 // Obtener las emociones del usuario
-                const emotionsResponse = await fetch(`http://localhost:8000/bigfive?user_id=${user_id}`);
+                const emotionsResponse = await fetch("http://localhost:8000/bigfive", {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                });
                 if (!emotionsResponse.ok) {
                     throw new Error("Error al obtener las emociones");
                 }
@@ -48,14 +51,14 @@ const Coach = () => {
                 setEmotions(emotionsData);
 
                 // Obtener los consejos del coach
-                const adviceResponse = await fetch(`http://localhost:8000/coach?user_id=${user_id}`);
-                if (!adviceResponse.ok) {
-                    if (adviceResponse.status === 400) {
-                        // Si el código de respuesta es 400, no actualizamos el estado de advice
-                        console.warn("La API devolvió un error 400. Usando valores por defecto.");
-                    } else {
-                        throw new Error("Error al obtener los consejos");
+                const adviceResponse = await fetch("http://localhost:8000/coach", {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
                     }
+                });
+                if (!adviceResponse.ok) {
+                    throw new Error("Error al obtener los consejos");
                 } else {
                     const adviceData: Advice = await adviceResponse.json();
                     setAdvice(adviceData.advice);

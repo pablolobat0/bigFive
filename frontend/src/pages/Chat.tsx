@@ -74,7 +74,7 @@ const Chat: React.FC = () => {
         }
         setHasSentMessage(true);
 
-        // ✅ Mensaje del usuario con tipado correcto
+        // Mensaje del usuario con tipado correcto
         const newMessage: { text: string; sender: "user" | "bot" } = {
             text: message,
             sender: "user",
@@ -82,7 +82,7 @@ const Chat: React.FC = () => {
 
         let chatId = selectedChat;
 
-        // ✅ Si no hay chat seleccionado, creamos uno automáticamente
+        // Si no hay chat seleccionado, creamos uno automáticamente
         if (!chatId) {
             const newChat: Chat = {
                 id: String(Date.now()),
@@ -99,7 +99,7 @@ const Chat: React.FC = () => {
         }
 
         try {
-            // ✅ Enviar mensaje a la API
+            //  Enviar mensaje a la API
             const response = await fetch(API_URL, {
                 method: "POST",
                 headers: {
