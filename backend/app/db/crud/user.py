@@ -8,6 +8,7 @@ from typing import Optional, Dict, Any
 # Configuración de hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 async def create_user(collection: AsyncIOMotorCollection, user: UserCreate):
     """
     Crea un usuario
@@ -24,13 +25,14 @@ async def create_user(collection: AsyncIOMotorCollection, user: UserCreate):
     user_dict = user.model_dump()
     user_dict["password_hash"] = hashed_password  # Reemplazar la contraseña con el hash
     del user_dict["password"]  # Eliminar la contraseña en texto plano
-    
+
     # Insertar el usuario en la colección
     result = await collection.insert_one(user_dict)
     if not result.inserted_id:
         raise ValueError("No se pudo crear el usuario.")
 
-async def login_user(collection: AsyncIOMotorCollection, user: UserLogin) -> dict:
+
+async def login_user(collection: AsyncIOMotorCollection, user: UserLogin):
     """
     Inicia la sesión del usuario si las credenciales son correctas
     """
@@ -38,16 +40,15 @@ async def login_user(collection: AsyncIOMotorCollection, user: UserLogin) -> dic
     db_user = await collection.find_one({"email": user.email})
     if not db_user:
         raise ValueError("Email o contraseña incorrectos")
-    
+
     # Verificar la contraseña
     if not pwd_context.verify(user.password, db_user["password_hash"]):
         raise ValueError("Email o contraseña incorrectos")
-    
-    # Generar el token JWT
-    access_token = create_access_token(data={"sub": user.email})
-    return {"access_token": access_token, "token_type": "bearer"}
 
-async def get_user_by_id(collection: AsyncIOMotorCollection, user_id: str) -> Optional[UserCreate]:
+
+async def get_user_by_id(
+    collection: AsyncIOMotorCollection, user_id: str
+) -> Optional[UserCreate]:
     """
     Busca un usuario por su user_id.
     Devuelve el usuario si lo encuentra, de lo contrario devuelve None.
@@ -59,7 +60,9 @@ async def get_user_by_id(collection: AsyncIOMotorCollection, user_id: str) -> Op
     return user
 
 
-async def update_user_emotions(collection: AsyncIOMotorCollection, user_id: str, new_emotions: Dict[str, Any]) -> bool:
+async def update_user_emotions(
+    collection: AsyncIOMotorCollection, user_id: str, new_emotions: Dict[str, Any]
+) -> bool:
     """
     Actualiza el campo 'emotions' de un usuario en la base de datos.
 
@@ -74,7 +77,7 @@ async def update_user_emotions(collection: AsyncIOMotorCollection, user_id: str,
     # Buscar y actualizar el usuario por su user_id
     result = await collection.update_one(
         {"user_id": user_id},  # Filtro para encontrar el usuario
-        {"$set": {"emotions": new_emotions}}  # Nuevo valor para el campo emotions
+        {"$set": {"emotions": new_emotions}},  # Nuevo valor para el campo emotions
     )
 
     # Verificar si se actualizó correctamente
