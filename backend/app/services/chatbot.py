@@ -93,7 +93,7 @@ class ChatbotService:
                 "Los consejos deben basarse en el tipo emocional del usuario (por ejemplo, si muestra ansiedad, estrés, tristeza, etc.). "
                 "Sé empático, profesional y ofrece herramientas prácticas para afrontar las emociones. "
                 "Evita dar diagnósticos médicos o tratamientos específicos."
-                "Retorna 4 oraciones separadas por salto de línea con los consejos que sean estilo Consejo: descripción"
+                "Retorna 4 oraciones separadas por salto de línea con los consejos"
             ),
         }
 
