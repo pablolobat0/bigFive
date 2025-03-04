@@ -1,39 +1,40 @@
+from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel, EmailStr
+
 
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+
 class Token(BaseModel):
     access_token: str
     token_type: str
+
 
 class Emotions(BaseModel):
     neuroticism: float
     extraversion: float
     openness: float
     agreeableness: float
-    conscientiousness: float 
+    conscientiousness: float
+
 
 class UserCreate(BaseModel):
-    user_id: str
     email: EmailStr
     password: str
     name: str
-    emotions: Emotions | None = None
 
 
+class UserResponse(BaseModel):
+    """
+    Modelo para devolver los datos del usuario sin información sensible.
+    """
 
-user_example = UserCreate(
-    user_id="12345",
-    email="user@example.com",
-    password="securepassword123",
-    name="John Doe",
-    emotions=Emotions(
-        neuroticism=12,
-        extraversion=25,
-        openness=30,
-        agreeableness=20,
-        conscientiousness=35
-    )
-)
+    id: str  # El _id de MongoDB convertido a str
+    email: EmailStr
+    name: str
+    emotions: Optional[Emotions] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None

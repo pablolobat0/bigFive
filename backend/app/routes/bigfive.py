@@ -1,6 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Depends
-from typing import List
-from app.db.crud.user import get_user_by_id
+from app.auth.dependencies import get_current_user
 from app.db.utils import get_database
 from app.db.crud.diary import (
     get_all_diary_entries_by_user_id,
@@ -8,7 +7,7 @@ from app.db.crud.diary import (
 from motor.motor_asyncio import AsyncIOMotorCollection
 from typing import List, Dict, Literal
 
-from app.models.user import Emotions,user_example
+from app.models.user import Emotions, UserResponse
 from app.services.chatbot import ChatbotService
 
 
@@ -16,56 +15,36 @@ bigfive_router = APIRouter()
 
 chatbot_service = ChatbotService()
 
-@bigfive_router.get(
-    '/bigfive',
-    response_model=Emotions,
-    status_code=status.HTTP_200_OK
-)
-async def get_bigfive(user_id: str, db: AsyncIOMotorCollection = Depends(get_database)) -> Emotions:
+
+@bigfive_router.get("/bigfive", response_model=Emotions, status_code=status.HTTP_200_OK)
+async def get_bigfive(
+    db: AsyncIOMotorCollection = Depends(get_database),
+    user: UserResponse = Depends(get_current_user),
+) -> Emotions:
     """
     Devuelve la calificación en la escala BigFive de la personalidad del usuario
     """
     try:
-        #user = await get_user_by_id(db.users, user_id)
-        user = user_example
-        if not user:
-            raise ValueError("El usuario no existe")
-
         if not user.emotions:
             raise ValueError("El usuario no tiene un análisis de sus emociones")
-
 
         return user.emotions
     except ValueError as e:
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @bigfive_router.get(
-    '/coach',
-    response_model=Dict[str, str],
-    status_code=status.HTTP_200_OK
+    "/coach", response_model=Dict[str, str], status_code=status.HTTP_200_OK
 )
-async def get_advices(user_id: str, db: AsyncIOMotorCollection = Depends(get_database)) -> Dict[str, str]:
+async def get_advices(
+    db: AsyncIOMotorCollection = Depends(get_database),
+    user: UserResponse = Depends(get_current_user),
+) -> Dict[str, str]:
     """
     Devuelve la calificación en la escala BigFive de la personalidad del usuario
     """
     try:
-        #user = await get_user_by_id(db.users, user_id)
-        user = user_example
-
-        if not user:
-            raise ValueError("El usuario no existe")
-        if not user.emotions:
-            raise ValueError("El usuario no tiene un análisis de sus emociones")
-
-        
-        all_entries = await get_all_diary_entries_by_user_id(db.entries, user_id)
-
-        if not all_entries:
-            raise ValueError("El usuario no tiene entradas en el diario")
+        all_entries = await get_all_diary_entries_by_user_id(db.diary, user.id)
 
         # Concatenar el contenido de todas las entradas del diario
         all_entries_text = " ".join([entry["entrada"] for entry in all_entries])
@@ -77,9 +56,9 @@ async def get_advices(user_id: str, db: AsyncIOMotorCollection = Depends(get_dat
             f"Consejos:"
         )
 
-
         prompt: List[Dict[Literal["role", "content"], str]] = [
-            {"role": "user", "content": all_text}] 
+            {"role": "user", "content": all_text}
+        ]
 
         advice = chatbot_service.get_emotional_advice(prompt)
 
@@ -88,8 +67,4 @@ async def get_advices(user_id: str, db: AsyncIOMotorCollection = Depends(get_dat
 
         return {"advice": advice}
     except ValueError as e:
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
-        )
-
+        raise HTTPException(status_code=400, detail=str(e))
