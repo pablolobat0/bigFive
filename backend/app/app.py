@@ -8,10 +8,6 @@ from app.db.utils import get_mongo_client, close_client
 from fastapi.middleware.cors import CORSMiddleware
 
 
-from fastapi import FastAPI
-from contextlib import asynccontextmanager
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -28,8 +24,9 @@ async def lifespan(app: FastAPI):
 
     # Cerrar conexión al terminar
     print("Apagando aplicación...")
-    await close_client() 
+    await close_client()
     print("✅ Conexión a MongoDB cerrada.")
+
 
 # Crear aplicación con Lifespan
 app = FastAPI(lifespan=lifespan)
@@ -52,5 +49,3 @@ router.include_router(bigfive_router)
 
 
 app.include_router(router)
-
-

@@ -1,9 +1,9 @@
-# db/crud/user.py
 from motor.motor_asyncio import AsyncIOMotorCollection
 from passlib.context import CryptContext
-from app.auth.utils import create_access_token
 from app.models.user import UserCreate, UserLogin
 from typing import Optional, Dict, Any
+from bson import ObjectId
+from fastapi import HTTPException, status
 
 # Configuración de hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -62,7 +62,7 @@ async def get_user_by_id(
 
 async def update_user_emotions(
     collection: AsyncIOMotorCollection, user_id: str, new_emotions: Dict[str, Any]
-) -> bool:
+):
     """
     Actualiza el campo 'emotions' de un usuario en la base de datos.
 
@@ -74,14 +74,27 @@ async def update_user_emotions(
     Retorna:
         bool: True si la actualización fue exitosa, False si el usuario no fue encontrado.
     """
-    # Buscar y actualizar el usuario por su user_id
-    result = await collection.update_one(
-        {"user_id": user_id},  # Filtro para encontrar el usuario
-        {"$set": {"emotions": new_emotions}},  # Nuevo valor para el campo emotions
-    )
+    try:
+        # Convertir el user_id a ObjectId
+        user_id_obj = ObjectId(user_id)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El user_id no es un ObjectId válido.",
+        )
 
-    # Verificar si se actualizó correctamente
-    if result.matched_count > 0:
-        return True  # El usuario fue encontrado y actualizado
-    else:
-        return False  # El usuario no fue encontrado
+    try:
+        # Buscar y actualizar el usuario por su user_id
+        updated_user = await collection.find_one_and_update(
+            {"_id": user_id_obj},  # Filtro para encontrar el usuario
+            {"$set": {"emotions": new_emotions}},  # Nuevo valor para el campo emotions
+            return_document=True,  # Devolver el documento actualizado
+        )
+
+        if not updated_user:
+            raise ValueError("Usuario no encontrado")
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al actualizar las emociones: {str(e)}",
+        )
