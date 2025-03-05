@@ -20,6 +20,8 @@ passlib = "*"
 bcrypt = "*"
 redis = "*"
 torch = { version = "*", index = "pytorch-cpu" }
+weaviate = "*"
+weaviate-client = "*"
 
 [dev-packages]
 
