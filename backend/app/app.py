@@ -7,6 +7,9 @@ from contextlib import asynccontextmanager
 from app.db.utils import get_mongo_client, close_client
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.weaviate.client import get_weaviate_client
+from app.weaviate.schemas import create_chat_schema, create_diary_schema
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -49,3 +52,6 @@ router.include_router(bigfive_router)
 
 
 app.include_router(router)
+
+create_chat_schema(get_weaviate_client())
+create_diary_schema(get_weaviate_client())
