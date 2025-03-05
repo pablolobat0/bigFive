@@ -106,7 +106,7 @@ const Chat: React.FC = () => {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({ text: message }),
+                body: JSON.stringify({ text: message, author: "user" }),
             });
 
             if (!response.ok) {

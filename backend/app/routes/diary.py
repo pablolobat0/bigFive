@@ -76,6 +76,7 @@ async def create_entry(
             raise ValueError("Tipo de respuesta no válido del LLM")
 
         await update_user_emotions(db.users, str(entry.user_id), personality_scores)
+        return entry
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
