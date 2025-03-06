@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List, Dict, Literal
 import weaviate.classes.query as wq
+import numpy as np
 
 from .client import get_weaviate_client
 
@@ -32,20 +33,21 @@ def add_diary_entry(user_id: str, title: str, content: str):
 def get_user_entries(user_id: str):
     client = get_weaviate_client()
     try:
-        messages = client.collections.get("DiaryEntry")
-        response = messages.query.fetch_objects(
+        entries = client.collections.get("DiaryEntry")
+        response = entries.query.fetch_objects(
             limit=100,
             filters=wq.Filter.by_property("user_id").equal(user_id),
             sort=wq.Sort.by_property("date", ascending=True),
+            include_vector=True,
         )
 
-        return [
-            {
-                "title": str(msg.properties["title"]),
-                "content": str(msg.properties["content"]),
-            }
-            for msg in response.objects
-        ]
+        valid_embeddings = []
+        for entry in response.objects:
+            # Suponiendo que entry es un diccionario y el vector está en entry["vector"]
+            vector = entry.vector
+            # Verificar que vector sea una lista o similar
+            valid_embeddings.append(np.array(vector["default"]))
+        return valid_embeddings
 
     finally:
         client.close()
