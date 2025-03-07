@@ -53,6 +53,26 @@ def get_user_entries(user_id: str):
         client.close()
 
 
+def get_user_entries_by_query(user_id: str, query) -> str:
+    client = get_weaviate_client()
+    try:
+        entries = client.collections.get("DiaryEntry")
+        response = entries.query.hybrid(
+            query=query,
+            filters=wq.Filter.by_property("user_id").equal(user_id),
+        )
+
+        context_text = ""
+        for object in response.objects:
+            context_text.join(
+                f"{str(object.properties.get("title"))} {object.properties.get("content")} {object.properties.get("date")}\n"
+            )
+
+        return context_text
+    finally:
+        client.close()
+
+
 def add_chat_message(user_id: str, text: str, author: str):
     """
     Agrega un mensaje de chat a Weaviate.
@@ -74,6 +94,32 @@ def add_chat_message(user_id: str, text: str, author: str):
             "author": author,
         }
         client.collections.get("ChatMessage").data.insert(message)
+    finally:
+        client.close()
+
+
+def get_chat_history_embbeding(user_id: str):
+    client = get_weaviate_client()
+    try:
+        messages = client.collections.get("ChatMessage")
+        response = messages.query.fetch_objects(
+            limit=100,
+            filters=wq.Filter.all_of(
+                [
+                    wq.Filter.by_property("user_id").equal(user_id),
+                    wq.Filter.by_property("author").equal("user"),
+                ]
+            ),
+            sort=wq.Sort.by_property("date", ascending=True),
+            include_vector=True,
+        )
+
+        valid_embeddings = []
+        for entry in response.objects:
+            vector = entry.vector
+            valid_embeddings.append(np.array(vector["default"]))
+        return valid_embeddings
+
     finally:
         client.close()
 

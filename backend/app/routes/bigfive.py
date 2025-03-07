@@ -1,7 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from app.auth.dependencies import get_current_user
-from app.db.utils import get_database
-from motor.motor_asyncio import AsyncIOMotorCollection
 from typing import List, Dict, Literal
 
 from app.models.user import Emotions, UserResponse
@@ -16,7 +14,6 @@ chatbot_service = ChatbotService()
 
 @bigfive_router.get("/bigfive", response_model=Emotions, status_code=status.HTTP_200_OK)
 async def get_bigfive(
-    db: AsyncIOMotorCollection = Depends(get_database),
     user: UserResponse = Depends(get_current_user),
 ) -> Emotions:
     """

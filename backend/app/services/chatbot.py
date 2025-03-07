@@ -4,6 +4,8 @@ import os
 import json
 from typing import List, Dict, Optional, Literal
 
+from app.models.user import Emotions
+
 # Cargar variables de entorno desde el archivo .env
 load_dotenv()
 
@@ -18,7 +20,10 @@ class ChatbotService:
         self.client = OpenAI(api_key=API_KEY, base_url=API_URL)
 
     def get_chat_response(
-        self, messages: List[Dict[Literal["role", "content"], str]]
+        self,
+        messages: List[Dict[Literal["role", "content"], str]],
+        emotions: Emotions,
+        diary_entries: str,
     ) -> Optional[str]:
         """
         Obtiene una respuesta basada en los mensajes de la conversacion enviada.
@@ -35,8 +40,12 @@ class ChatbotService:
                 "Habla de manera cálida y profesional, y evita dar diagnósticos médicos o tratamientos. "
                 "Ofrece herramientas de afrontamiento, preguntas reflexivas y sugerencias generales para mejorar el bienestar emocional. "
                 "Recuerda: tu rol es escuchar y guiar, no juzgar."
+                f"Ten en cuenta este contexto del diario del usuario: {diary_entries}\n"
+                f"Ten en cuenta el estado emocional del usuario según las puntuaciones del modelo Big Five en una escala 0-10: {emotions.model_dump}"
             ),
         }
+
+        print(system_prompt)
 
         return self.get_chatbot_response(system_prompt, messages)
 
