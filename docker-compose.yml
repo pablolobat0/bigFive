@@ -44,6 +44,7 @@ services:
       DEFAULT_VECTORIZER_MODULE: 'text2vec-transformers'
       ENABLE_MODULES: 'text2vec-transformers'
       TRANSFORMERS_INFERENCE_API: 'http://t2v-transformers:8080'
+      TRANSFORMERS_MODULE_CONFIG: '{"language":"es"}'
       ENABLE_API_BASED_MODULES: 'true'
     healthcheck: 
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/v1/.well-known/ready"]
@@ -54,7 +55,7 @@ services:
 
 
   t2v-transformers:
-    image: semitechnologies/transformers-inference:sentence-transformers-all-MiniLM-L6-v2
+    image: semitechnologies/transformers-inference:sentence-transformers-paraphrase-multilingual-MiniLM-L12-v2
     environment:
       ENABLE_CUDA: 0
     ports:
