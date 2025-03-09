@@ -3,19 +3,15 @@ from app.auth.dependencies import get_current_user
 from app.db.crud.user import update_user_emotions
 from app.models.diary import DiaryEntry
 from app.db.utils import get_database
-from app.db.crud.diary import (
-    get_all_diary_entries_by_user_id,
-    create_diary_entry,
-    get_diary_entry_by_title,
-    delete_diary_entry_by_title,
-)
 from motor.motor_asyncio import AsyncIOMotorCollection
-from typing import List, Dict, Literal
-import json
-import re
-
+from typing import List
 from app.models.user import UserResponse
+from app.routes.utils import analyze_user_personality
 from app.services.chatbot import ChatbotService
+from app.weaviate.utils import (
+    add_diary_entry,
+    get_user_entries_text,
+)
 
 
 diary_router = APIRouter()
@@ -23,9 +19,7 @@ diary_router = APIRouter()
 chatbot_service = ChatbotService()
 
 
-@diary_router.post(
-    "/diary", response_model=DiaryEntry, status_code=status.HTTP_201_CREATED
-)
+@diary_router.post("/diary", status_code=status.HTTP_201_CREATED)
 async def create_entry(
     entry: DiaryEntry,
     db: AsyncIOMotorCollection = Depends(get_database),
@@ -39,48 +33,12 @@ async def create_entry(
         entry.user_id = user.id
 
         # Crear la entrada en la base de datos
-        created_entry = await create_diary_entry(db.diary, entry)
+        add_diary_entry(user.id, entry.titulo, entry.entrada)
 
-        all_entries = await get_all_diary_entries_by_user_id(db.diary, entry.user_id)
+        emotions = analyze_user_personality(user.id)
 
-        all_text = " ".join([entry["entrada"] for entry in all_entries])
-        all_messages: List[Dict[Literal["role", "content"], str]] = [
-            {"role": "user", "content": all_text}
-        ]
-
-        response = chatbot_service.get_personality_scores(all_messages)
-        if not response:
-            raise ValueError(
-                "Error en la respuesta del LLM: Respuesta vacía o inválida"
-            )
-        # Si la respuesta es un diccionario, úsalo directamente
-        if isinstance(response, dict):
-            personality_scores = response
-        # Si la respuesta es un string JSON, conviértelo a diccionario
-        elif isinstance(response, str):
-            # Expresión regular para extraer el JSON
-            json_pattern = re.compile(
-                r'\{.*?"openness":\s*\d+(\.\d+)?.*?"conscientiousness":\s*\d+(\.\d+)?.*?"extraversion":\s*\d+(\.\d+)?.*?"agreeableness":\s*\d+(\.\d+)?.*?"neuroticism":\s*\d+(\.\d+)?.*?\}'
-            )
-
-            # Buscar el JSON en la respuesta del LLM
-            match = json_pattern.search(response)
-            if not match:
-                raise ValueError(
-                    "No se encontró un JSON válido en la respuesta del LLM"
-                )
-
-            # Extraer el JSON
-            json_content = match.group(0)
-
-            # Parsear el JSON
-            personality_scores = json.loads(json_content)
-
-        else:
-            raise ValueError("Tipo de respuesta no válido del LLM")
-
-        await update_user_emotions(db.users, str(entry.user_id), personality_scores)
-        return created_entry
+        await update_user_emotions(db.users, str(entry.user_id), emotions)
+        return entry
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -89,39 +47,10 @@ async def create_entry(
     "/diary", response_model=List[DiaryEntry], status_code=status.HTTP_200_OK
 )
 async def get_all_entries(
-    db: AsyncIOMotorCollection = Depends(get_database),
     user: UserResponse = Depends(get_current_user),
 ):
     """
     Devuelve todas las entradas del diario.
     """
-    entries = await get_all_diary_entries_by_user_id(db.diary, user.id)
+    entries = get_user_entries_text(user.id)
     return entries
-
-
-@diary_router.get(
-    "/diary/{titulo}", response_model=DiaryEntry, status_code=status.HTTP_200_OK
-)
-async def get_entry_by_title(
-    titulo: str, db: AsyncIOMotorCollection = Depends(get_database)
-):
-    """
-    Devuelve una única entrada del diario según el título desde MongoDB.
-    """
-    entry = await get_diary_entry_by_title(db.diary, titulo)
-    if entry:
-        return entry
-    raise HTTPException(status_code=404, detail="Entrada del diario no encontrada.")
-
-
-@diary_router.delete("/diary/{titulo}", status_code=status.HTTP_200_OK)
-async def delete_entry_by_title(
-    titulo: str, db: AsyncIOMotorCollection = Depends(get_database)
-):
-    """
-    Elimina una entrada del diario según el título desde MongoDB.
-    """
-    deleted = await delete_diary_entry_by_title(db.diary, titulo)
-    if deleted:
-        return {"detail": f"Entrada '{titulo}' eliminada correctamente."}
-    raise HTTPException(status_code=404, detail="Entrada del diario no encontrada.")

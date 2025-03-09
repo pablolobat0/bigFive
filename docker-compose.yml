@@ -7,15 +7,23 @@ services:
       - "3000:80"  
     depends_on:
       - backend
+
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    environment:
+      WEAVIATE_URL: "http://weaviate:8080"
+    restart: always
     depends_on:
-      - redis
-      - mongo
+      weaviate: 
+        condition: service_healthy
+      mongo: 
+        condition: service_started
+
+
   mongo:
     image: mongo:8.0
     container_name: mongo
@@ -23,9 +31,32 @@ services:
       - MONGO_INITDB_DATABASE=${DATABASE_NAME}
     ports:
       - "27017:27017"
-  redis:
-    image: redis:7.4.2
-    container_name: redis
-    ports:
-      - "6379:6379"
 
+  weaviate:
+    image: semitechnologies/weaviate:1.29.0
+    ports:
+      - "8080:8080"
+      - "50051:50051"
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+      DEFAULT_VECTORIZER_MODULE: 'text2vec-transformers'
+      ENABLE_MODULES: 'text2vec-transformers'
+      TRANSFORMERS_INFERENCE_API: 'http://t2v-transformers:8080'
+      TRANSFORMERS_MODULE_CONFIG: '{"language":"es"}'
+      ENABLE_API_BASED_MODULES: 'true'
+    healthcheck: 
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/v1/.well-known/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s  
+
+
+  t2v-transformers:
+    image: semitechnologies/transformers-inference:sentence-transformers-paraphrase-multilingual-MiniLM-L12-v2
+    environment:
+      ENABLE_CUDA: 0
+    ports:
+      - "8081:8080"

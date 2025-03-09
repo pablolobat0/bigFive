@@ -1,6 +1,6 @@
 from motor.motor_asyncio import AsyncIOMotorCollection
 from passlib.context import CryptContext
-from app.models.user import UserCreate, UserLogin
+from app.models.user import Emotions, UserCreate, UserLogin
 from typing import Optional, Dict, Any
 from bson import ObjectId
 from fastapi import HTTPException, status
@@ -61,7 +61,7 @@ async def get_user_by_id(
 
 
 async def update_user_emotions(
-    collection: AsyncIOMotorCollection, user_id: str, new_emotions: Dict[str, Any]
+    collection: AsyncIOMotorCollection, user_id: str, new_emotions: Emotions
 ):
     """
     Actualiza el campo 'emotions' de un usuario en la base de datos.
@@ -87,7 +87,9 @@ async def update_user_emotions(
         # Buscar y actualizar el usuario por su user_id
         updated_user = await collection.find_one_and_update(
             {"_id": user_id_obj},  # Filtro para encontrar el usuario
-            {"$set": {"emotions": new_emotions}},  # Nuevo valor para el campo emotions
+            {
+                "$set": {"emotions": new_emotions.model_dump()}
+            },  # Nuevo valor para el campo emotions
             return_document=True,  # Devolver el documento actualizado
         )
 

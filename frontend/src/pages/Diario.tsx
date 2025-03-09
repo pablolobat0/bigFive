@@ -22,7 +22,7 @@ const DiarioPage: React.FC = () => {
     const [showAuthPopup, setShowAuthPopup] = useState(false);
     const navigate = useNavigate();
     /**
-     * ✅ Carga las notas desde la API al iniciar la página.
+     * Carga las notas desde la API al iniciar la página.
      */
     useEffect(() => {
         const fetchNotes = async () => {
