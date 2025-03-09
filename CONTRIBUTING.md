@@ -10,7 +10,7 @@ Sigue estas instrucciones para asegurarte de que tu contribución sea bien recib
 
 2. **Clona tu Fork en tu máquina local**  
    ```sh
-   git clone https://github.com/tu-usuario/hackathon.git
+   git clone https://github.com/pablolobat0/bigFive.git
    cd hackathon
    ```
 

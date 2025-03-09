@@ -6,8 +6,9 @@ Bienvenido al proyecto **BigFive**. Esta aplicación web integra un chatbot emoc
 
 ## 🛠 Tecnologías
 
-- **Frontend:** React
+- **Frontend:** React, Vite y TailwindCSS
 - **Backend:** FastAPI
+
 - **Base de Datos Vectorial:** Weaviate
 - **Base de Datos:** MongoDB
 - **Modelo de Análisis Emocional:** `SamLowe/roberta-base-go_emotions`
@@ -24,6 +25,7 @@ Bienvenido al proyecto **BigFive**. Esta aplicación web integra un chatbot emoc
 
 1. Clona el repositorio en tu máquina local:
    ```bash
+
    git clone https://github.com/pablolobat0/bigFive.git
    ```
 
@@ -31,16 +33,15 @@ Bienvenido al proyecto **BigFive**. Esta aplicación web integra un chatbot emoc
    ```bash
    cd bigFive
    ```
-
-3. Inicia los servicios con Docker Compose:
+3. Crea un fichero .env en el directorio raíz con la variable de entorno: DATABASE_NAME
+4. Crea un fichero .env en el directorio backedn con las variables de entorno: MONGODB_URI, DATABASE_NAME, PERPLEXITY_API_KEY, SECRET_KEY, REDIS_HOST, REDIS_PORT
+5. Inicia los servicios con Docker Compose:
    ```bash
    docker compose up
    ```
-
-4. Accede a la aplicación:
-   Una vez que los servicios estén en funcionamiento, abre tu navegador y dirígete a [http://localhost:3000](http://localhost:3000) para interactuar con la aplicación.
-
-## 🤖 Funcionamiento del Chatbot
+6. Accede a la aplicación:
+   Una vez que los servicios estén en funcionamiento, abre tu navegador y dirígete a http://localhost:3000 para interactuar con la aplicación.
+   ## 🤖 Funcionamiento del Chatbot
 
 El chatbot emplea el modelo `SamLowe/roberta-base-go_emotions` para analizar el tono emocional de los mensajes y utiliza Weaviate para gestionar y recuperar información basada en embeddings vectoriales, permitiendo respuestas más contextuales y personalizadas.
 
