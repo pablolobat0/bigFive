@@ -3,6 +3,8 @@ from typing import List, Dict, Literal
 import weaviate.classes.query as wq
 import numpy as np
 
+from app.models import user
+
 from .client import get_weaviate_client
 
 RFC3339_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
@@ -56,17 +58,18 @@ def get_user_entries(user_id: str):
 def get_user_entries_by_query(user_id: str, query) -> str:
     client = get_weaviate_client()
     try:
+        print(f"Query {query}")
         entries = client.collections.get("DiaryEntry")
-        response = entries.query.hybrid(
+        response = entries.query.bm25(
             query=query,
             filters=wq.Filter.by_property("user_id").equal(user_id),
+            limit=5,
+            query_properties=["content"],
         )
 
         context_text = ""
         for object in response.objects:
-            context_text.join(
-                f"{str(object.properties.get("title"))} {object.properties.get("content")} {object.properties.get("date")}\n"
-            )
+            context_text += f"Título: {str(object.properties.get("title"))} Contenido: {object.properties.get("content")} Fecha: {object.properties.get("date")}\n"
 
         return context_text
     finally:

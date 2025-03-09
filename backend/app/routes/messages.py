@@ -42,7 +42,7 @@ async def process_message(
         await update_user_emotions(db.users, user.id, emotions)
 
         chatbot_response = chatbot_service.get_chat_response(
-            conversation_history, emotions, diary_entries
+            user.name, conversation_history, emotions, diary_entries
         )
 
         # Verificar si la respuesta es None

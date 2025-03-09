@@ -21,6 +21,7 @@ class ChatbotService:
 
     def get_chat_response(
         self,
+        name: str,
         messages: List[Dict[Literal["role", "content"], str]],
         emotions: Emotions,
         diary_entries: str,
@@ -42,6 +43,7 @@ class ChatbotService:
                 "Recuerda: tu rol es escuchar y guiar, no juzgar."
                 f"Ten en cuenta este contexto del diario del usuario: {diary_entries}\n"
                 f"Ten en cuenta el estado emocional del usuario según las puntuaciones del modelo Big Five en una escala 0-10: {emotions.model_dump}"
+                f"El nombre del usuario es {name}"
             ),
         }
 
