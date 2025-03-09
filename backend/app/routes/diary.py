@@ -8,7 +8,10 @@ from typing import List
 from app.models.user import UserResponse
 from app.routes.utils import analyze_user_personality
 from app.services.chatbot import ChatbotService
-from app.weaviate.utils import add_diary_entry, get_user_entries
+from app.weaviate.utils import (
+    add_diary_entry,
+    get_user_entries_text,
+)
 
 
 diary_router = APIRouter()
@@ -49,5 +52,5 @@ async def get_all_entries(
     """
     Devuelve todas las entradas del diario.
     """
-    entries = get_user_entries(user.id)
+    entries = get_user_entries_text(user.id)
     return entries

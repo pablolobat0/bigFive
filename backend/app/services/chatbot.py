@@ -1,7 +1,6 @@
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
-import json
 from typing import List, Dict, Optional, Literal
 
 from app.models.user import Emotions
@@ -42,49 +41,12 @@ class ChatbotService:
                 "Ofrece herramientas de afrontamiento, preguntas reflexivas y sugerencias generales para mejorar el bienestar emocional. "
                 "Recuerda: tu rol es escuchar y guiar, no juzgar."
                 f"Ten en cuenta este contexto del diario del usuario: {diary_entries}\n"
-                f"Ten en cuenta el estado emocional del usuario según las puntuaciones del modelo Big Five en una escala 0-10: {emotions.model_dump}"
+                f"Ten en cuenta el estado emocional del usuario según las puntuaciones del modelo Big Five en una escala 0-10: {emotions}"
                 f"El nombre del usuario es {name}"
             ),
         }
 
-        print(system_prompt)
-
         return self.get_chatbot_response(system_prompt, messages)
-
-    def get_personality_scores(
-        self, messages: List[Dict[Literal["role", "content"], str]]
-    ) -> Optional[str]:
-        """
-        Obtiene las puntuaciones de personalidad del usuario según el modelo Big Five.
-
-        :param messages: Lista de mensajes en formato de diccionario con claves "role" y "content".
-        :return: JSON con las puntuaciones de personalidad o None si hay un error.
-        """
-        # Prompt de sistema para analizar la personalidad
-        system_prompt = {
-            "role": "system",
-            "content": (
-                "Eres un psicólogo virtual especializado en el modelo de personalidad Big Five. "
-                "Analiza los mensajes del usuario y devuelve un JSON con las puntuaciones de los cinco rasgos de personalidad: "
-                "Apertura (Openness), Responsabilidad (Conscientiousness), Extraversión (Extraversion), Amabilidad (Agreeableness) y Neuroticismo (Neuroticism). "
-                "Las puntuaciones deben estar en una escala del 1 al 5, donde 1 es el mínimo y 5 es el máximo. "
-                "Quiero que solo respondas con el JSON. El formato del JSON debe ser: "
-                '{"openness": puntuacion, "conscientiousness": puntuacion, "extraversion": puntuacion, "agreeableness": puntuacion, "neuroticism": puntuacion}.'
-            ),
-        }
-
-        # Obtener la respuesta del chatbot
-        response = self.get_chatbot_response(system_prompt, messages)
-
-        if not response:
-            raise ValueError("Error del mensaje")
-
-        # Intentar parsear la respuesta como JSON
-        try:
-            personality_scores = json.loads(response)
-            return personality_scores
-        except json.JSONDecodeError:
-            return None
 
     def get_emotional_advice(
         self, messages: List[Dict[Literal["role", "content"], str]]

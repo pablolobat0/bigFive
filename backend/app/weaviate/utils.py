@@ -3,8 +3,7 @@ from typing import List, Dict, Literal
 import weaviate.classes.query as wq
 import numpy as np
 
-from app.models import user
-
+from app.models.diary import DiaryEntry
 from .client import get_weaviate_client
 
 RFC3339_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
@@ -32,7 +31,7 @@ def add_diary_entry(user_id: str, title: str, content: str):
         client.close()
 
 
-def get_user_entries(user_id: str):
+def get_user_entries_vectors(user_id: str):
     client = get_weaviate_client()
     try:
         entries = client.collections.get("DiaryEntry")
@@ -50,6 +49,28 @@ def get_user_entries(user_id: str):
             # Verificar que vector sea una lista o similar
             valid_embeddings.append(np.array(vector["default"]))
         return valid_embeddings
+
+    finally:
+        client.close()
+
+
+def get_user_entries_text(user_id: str) -> list[DiaryEntry]:
+    client = get_weaviate_client()
+    try:
+        entries = client.collections.get("DiaryEntry")
+        response = entries.query.fetch_objects(
+            limit=100,
+            filters=wq.Filter.by_property("user_id").equal(user_id),
+            sort=wq.Sort.by_property("date", ascending=True),
+        )
+
+        diary_entries = []
+        for entry in response.objects:
+            DiaryEntry(
+                titulo=str(entry.properties["title"]),
+                entrada=str(entry.properties["content"]),
+            )
+        return diary_entries
 
     finally:
         client.close()

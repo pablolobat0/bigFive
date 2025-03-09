@@ -23,8 +23,9 @@ interface Advice {
 const Coach = () => {
     const [emotions, setEmotions] = useState<Emotions | null>(null);
     const [advice, setAdvice] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [_, setError] = useState<string | null>(null);
     const [showAuthPopup, setShowAuthPopup] = useState(false);
+    const [showAnalysisPopup, setShowAnalysisPopup] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -45,7 +46,8 @@ const Coach = () => {
                     }
                 });
                 if (!emotionsResponse.ok) {
-                    throw new Error("Error al obtener las emociones");
+                    setShowAnalysisPopup(true); // Mostrar pop-up de análisis
+                    return;
                 }
                 const emotionsData = await emotionsResponse.json();
                 setEmotions(emotionsData);
@@ -75,7 +77,6 @@ const Coach = () => {
         fetchData();
     }, []);
 
-    if (error) return <div>Error: {error}</div>;
 
     return (
         <motion.div
@@ -126,6 +127,35 @@ const Coach = () => {
                     </div>
                 )
             }
+            {/* Nuevo pop-up de análisis requerido */}
+            {showAnalysisPopup && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+                        <h2 className="text-xl font-bold mb-4">📝 Necesitamos conocerte mejor</h2>
+                        <p className="mb-4 max-w-md">
+                            Para darte recomendaciones personalizadas, necesitamos:
+                        </p>
+                        <ul className="list-disc pl-5 mb-6 text-left inline-block">
+                            <li>Que hables con el chatbot</li>
+                            <li>Que añadas entradas al diario</li>
+                        </ul>
+                        <div className="flex justify-center gap-4">
+                            <button
+                                onClick={() => navigate("/chat")}
+                                className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition"
+                            >
+                                Comenzar conversación
+                            </button>
+                            <button
+                                onClick={() => navigate("/diario")}
+                                className="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600 transition"
+                            >
+                                Escribir en el diario
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </motion.div>
     );
 };

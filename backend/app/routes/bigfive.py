@@ -4,7 +4,7 @@ from typing import List, Dict, Literal
 
 from app.models.user import Emotions, UserResponse
 from app.services.chatbot import ChatbotService
-from app.weaviate.utils import get_user_entries
+from app.weaviate.utils import get_user_entries_text, get_user_entries_vectors
 
 
 bigfive_router = APIRouter()
@@ -38,11 +38,11 @@ async def get_advices(
     Devuelve la calificación en la escala BigFive de la personalidad del usuario
     """
     try:
-        all_entries = get_user_entries(user.id)
+        all_entries = get_user_entries_text(user.id)
 
         # Concatenar el contenido de todas las entradas del diario
         all_entries_text = " ".join(
-            f"{entry['title']} {entry['content']}" for entry in all_entries
+            f"{entry.titulo} {entry.entrada}" for entry in all_entries
         )
 
         all_text = (

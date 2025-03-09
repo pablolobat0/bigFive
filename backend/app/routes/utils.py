@@ -3,7 +3,7 @@ from app.models.user import Emotions
 from app.services.bigfive import BigFiveAnalyzer
 from app.weaviate.utils import (
     get_chat_history_embbeding,
-    get_user_entries,
+    get_user_entries_vectors,
 )
 
 
@@ -11,7 +11,7 @@ analyzer = BigFiveAnalyzer()
 
 
 def analyze_user_personality(user_id: str) -> Emotions:
-    embeddings = get_user_entries(user_id)
+    embeddings = get_user_entries_vectors(user_id)
 
     messages_embbedings = get_chat_history_embbeding(user_id)
 
