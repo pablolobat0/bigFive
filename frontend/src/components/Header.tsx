@@ -24,7 +24,7 @@ const Header: React.FC = () => {
             transition={{ duration: 0.3 }}
           >
             <Link to="/inicio" className="text-2xl font-extrabold text-headerText hover:text-third transition duration-300">
-              Big5
+              BigFive
             </Link>
           </motion.div>
 

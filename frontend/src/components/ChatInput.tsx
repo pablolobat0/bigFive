@@ -23,7 +23,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ sendMessage }) => {
   };
 
   return (
-    <div className="w-full flex items-center border rounded-lg p-2 bg-white">
+    <div className="w-full max-w-5xl flex items-center justify-center border rounded-lg p-2 bg-white">
         <input
             type="text"
             placeholder="Escribe aquí tu mensaje..."

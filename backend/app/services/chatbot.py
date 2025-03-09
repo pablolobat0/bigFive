@@ -1,21 +1,30 @@
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
-import json
 from typing import List, Dict, Optional, Literal
+
+from app.models.user import Emotions
 
 # Cargar variables de entorno desde el archivo .env
 load_dotenv()
 
-# Configuración de la API 
+# Configuración de la API
 API_KEY = os.getenv("PERPLEXITY_API_KEY")
-API_URL ="https://api.perplexity.ai" 
+API_URL = "https://api.perplexity.ai"
+MODEL = "r1-1776"
+
 
 class ChatbotService:
     def __init__(self):
         self.client = OpenAI(api_key=API_KEY, base_url=API_URL)
 
-    def get_chat_response(self, messages: List[Dict[Literal["role", "content"], str]]) -> Optional[str]:
+    def get_chat_response(
+        self,
+        name: str,
+        messages: List[Dict[Literal["role", "content"], str]],
+        emotions: Emotions,
+        diary_entries: str,
+    ) -> Optional[str]:
         """
         Obtiene una respuesta basada en los mensajes de la conversacion enviada.
 
@@ -31,45 +40,17 @@ class ChatbotService:
                 "Habla de manera cálida y profesional, y evita dar diagnósticos médicos o tratamientos. "
                 "Ofrece herramientas de afrontamiento, preguntas reflexivas y sugerencias generales para mejorar el bienestar emocional. "
                 "Recuerda: tu rol es escuchar y guiar, no juzgar."
-            )
+                f"Ten en cuenta este contexto del diario del usuario: {diary_entries}\n"
+                f"Ten en cuenta el estado emocional del usuario según las puntuaciones del modelo Big Five en una escala 0-10: {emotions}"
+                f"El nombre del usuario es {name}"
+            ),
         }
 
         return self.get_chatbot_response(system_prompt, messages)
 
-    def get_personality_scores(self, messages: List[Dict[Literal["role", "content"], str]]) -> Optional[str]:
-        """
-        Obtiene las puntuaciones de personalidad del usuario según el modelo Big Five.
-
-        :param messages: Lista de mensajes en formato de diccionario con claves "role" y "content".
-        :return: JSON con las puntuaciones de personalidad o None si hay un error.
-        """
-    # Prompt de sistema para analizar la personalidad
-        system_prompt = {
-            "role": "system",
-            "content": (
-                "Eres un psicólogo virtual especializado en el modelo de personalidad Big Five. "
-                "Analiza los mensajes del usuario y devuelve un JSON con las puntuaciones de los cinco rasgos de personalidad: "
-                "Apertura (Openness), Responsabilidad (Conscientiousness), Extraversión (Extraversion), Amabilidad (Agreeableness) y Neuroticismo (Neuroticism). "
-                "Las puntuaciones deben estar en una escala del 1 al 5, donde 1 es el mínimo y 5 es el máximo. "
-                "Quiero que solo respondas con el JSON. El formato del JSON debe ser: "
-                '{"openness": puntuacion, "conscientiousness": puntuacion, "extraversion": puntuacion, "agreeableness": puntuacion, "neuroticism": puntuacion}.'
-            )
-        }
-
-        # Obtener la respuesta del chatbot
-        response = self.get_chatbot_response(system_prompt, messages)
-        
-        if not response:
-            raise ValueError("Error del mensaje")
-
-        # Intentar parsear la respuesta como JSON
-        try:
-            personality_scores = json.loads(response)
-            return personality_scores
-        except json.JSONDecodeError:
-            return None
-
-    def get_emotional_advice(self, messages: List[Dict[Literal["role", "content"], str]]) -> Optional[str]:
+    def get_emotional_advice(
+        self, messages: List[Dict[Literal["role", "content"], str]]
+    ) -> Optional[str]:
         """
         Proporciona consejos personalizados según el tipo emocional del usuario.
 
@@ -85,8 +66,8 @@ class ChatbotService:
                 "Los consejos deben basarse en el tipo emocional del usuario (por ejemplo, si muestra ansiedad, estrés, tristeza, etc.). "
                 "Sé empático, profesional y ofrece herramientas prácticas para afrontar las emociones. "
                 "Evita dar diagnósticos médicos o tratamientos específicos."
-                "Retorna 4 oraciones separadas por salto de línea con los consejos que sean estilo Consejo: descripción"
-            )
+                "Retorna 4 oraciones separadas por salto de línea con los consejos"
+            ),
         }
 
         # Obtener la respuesta del chatbot
@@ -94,16 +75,17 @@ class ChatbotService:
 
         return response
 
-    def get_chatbot_response(self, system_prompt: dict, messages: List[Dict[Literal["role", "content"], str]]) -> Optional[str]:
+    def get_chatbot_response(
+        self, system_prompt: dict, messages: List[Dict[Literal["role", "content"], str]]
+    ) -> Optional[str]:
         # Combinar el prompt inicial con los mensajes del usuario
         full_messages = [system_prompt] + messages
         try:
-            # Llamada a la API 
+            # Llamada a la API
             response = self.client.chat.completions.create(
-                model="r1-1776",
-                messages=full_messages #type: ignore
+                model=MODEL, messages=full_messages  # type: ignore
             )
-             # Obtener el contenido de la respuesta
+            # Obtener el contenido de la respuesta
             full_response = response.choices[0].message.content
 
             # Procesar la respuesta para eliminar el razonamiento
